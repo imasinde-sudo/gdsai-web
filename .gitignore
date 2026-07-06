@@ -121,8 +121,7 @@ python/
 .idea/
 
 # Docker
-.dockerignore
-# Do not ignore Dockerfiles, but you can ignore docker volumes or temporary files if any
+# Do not ignore Dockerfiles or .dockerignore, but you can ignore docker volumes or temporary files if any
 
 # OS generated files
 .DS_Store

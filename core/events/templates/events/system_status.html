@@ -1,0 +1,53 @@
+{% extends "events/base.html" %}
+
+{% block title %}System Status - EventHub{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+  <a href="{% url 'events:admin_dashboard' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent-cyan); font-weight: 500;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Back to Dashboard
+  </a>
+</div>
+
+<header style="margin-bottom: 3rem;">
+  <h1 class="gradient-title">System Status</h1>
+  <p class="section-subtitle">This page is restricted to Superusers only. Inspect environment configs and software runtimes.</p>
+</header>
+
+<section class="glass-panel" style="padding: 2.5rem; margin-bottom: 4rem;">
+  <h2 style="font-size: 1.5rem; font-weight: 700; color: #fff; border-bottom: 1px solid var(--border-glass); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+    Operational Environment Parameters
+  </h2>
+  
+  <table style="width: 100%; border-collapse: collapse; text-align: left;">
+    <thead>
+      <tr style="border-bottom: 2px solid var(--border-glass);">
+        <th style="padding: 1rem; color: #fff; font-weight: 600;">Parameter</th>
+        <th style="padding: 1rem; color: #fff; font-weight: 600;">Value / Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid var(--border-glass);">
+        <td style="padding: 1.25rem 1rem; color: var(--accent-cyan); font-weight: 500;">Python Version</td>
+        <td style="padding: 1.25rem 1rem; color: var(--text-muted); font-family: monospace;">{{ python_version }}</td>
+      </tr>
+      <tr style="border-bottom: 1px solid var(--border-glass);">
+        <td style="padding: 1.25rem 1rem; color: var(--accent-cyan); font-weight: 500;">Django Version</td>
+        <td style="padding: 1.25rem 1rem; color: var(--text-muted); font-family: monospace;">{{ django_version }}</td>
+      </tr>
+      <tr style="border-bottom: 1px solid var(--border-glass);">
+        <td style="padding: 1.25rem 1rem; color: var(--accent-cyan); font-weight: 500;">Dynamic DB Setting</td>
+        <td style="padding: 1.25rem 1rem; color: var(--text-muted);">Active (Auto-switching Postgres/SQLite)</td>
+      </tr>
+      <tr>
+        <td style="padding: 1.25rem 1rem; color: var(--accent-cyan); font-weight: 500;">Access Privileges</td>
+        <td style="padding: 1.25rem 1rem; color: #10b981; font-weight: 600;">SUPERUSER_AUTHORIZED</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+{% endblock %}

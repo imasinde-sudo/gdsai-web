@@ -1,0 +1,21 @@
+# Git
+.git
+.gitignore
+
+# Python
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Django local DB and logs
+db.sqlite3
+db.sqlite3-journal
+*.log
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore

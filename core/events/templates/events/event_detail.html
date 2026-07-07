@@ -1,0 +1,104 @@
+{% extends "events/base.html" %}
+
+{% block title %}{{ event.title }} - EventHub{% endblock %}
+
+{% block content %}
+<!-- Event Header Panel -->
+<header class="event-header glass-panel">
+  <div class="event-header-info">
+    <a href="{% url 'events:event_list' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent-cyan); font-weight: 500; margin-bottom: 1.5rem;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Back to all events
+    </a>
+    
+    <h1 class="event-header-title">{{ event.title }}</h1>
+    <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 2rem;">{{ event.description }}</p>
+    
+    <div class="event-header-meta">
+      <div class="meta-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <span><strong>Starts:</strong> {{ event.start_date|date:"M d, Y - P" }}</span>
+      </div>
+      <div class="meta-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <span><strong>Ends:</strong> {{ event.end_date|date:"M d, Y - P" }}</span>
+      </div>
+      <div class="meta-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        <span><strong>Venue:</strong> {{ event.location }}</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Event Schedule Timeline -->
+<section>
+  <h2 class="gradient-title" style="font-size: 1.8rem; margin-bottom: 0.5rem;">Event Schedule</h2>
+  <p style="color: var(--text-muted); margin-bottom: 2rem;">Plan your day by browsing the scheduled talks, sessions, and guest speaker panels.</p>
+  
+  <div class="schedule-container">
+    {% for session in sessions %}
+      <div class="session-row glass-panel">
+        <div class="session-time-col">
+          <div class="session-time">{{ session.start_time|date:"P" }}</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0;">to</div>
+          <div class="session-time" style="color: var(--text-muted);">{{ session.end_time|date:"P" }}</div>
+          <div class="session-date" style="margin-top: 0.5rem;">{{ session.start_time|date:"M d" }}</div>
+        </div>
+        
+        <div class="session-content-col">
+          <h3 class="session-title">{{ session.title }}</h3>
+          <p class="session-desc">{{ session.description }}</p>
+          
+          <div class="session-footer">
+            <div class="session-speakers-list">
+              {% if session.speakers.all %}
+                <span class="session-speakers-label">Speakers:</span>
+                {% for speaker in session.speakers.all %}
+                  <a href="{% url 'events:speaker_detail' speaker.id %}" class="speaker-avatar-link">
+                    {% if speaker.profile_picture %}
+                      <img class="speaker-avatar-img" src="{{ speaker.profile_picture.url }}" alt="{{ speaker.name }}">
+                    {% endif %}
+                    <span>{{ speaker.name }}</span>
+                  </a>
+                {% endfor %}
+              {% endif %}
+            </div>
+            
+            {% if session.location %}
+              <div class="meta-item" style="font-size: 0.9rem; color: var(--text-muted);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>{{ session.location }}</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state glass-panel">
+        <h3 class="empty-state-title">No Sessions Scheduled</h3>
+        <p class="empty-state-desc">There are no sessions or talks currently scheduled for this event.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import api_views
 
 app_name = "events"
 
@@ -26,4 +27,19 @@ urlpatterns = [
     path("dashboard/sessions/add/", views.session_create, name="session_create"),
     path("dashboard/sessions/<int:session_id>/edit/", views.session_edit, name="session_edit"),
     path("dashboard/sessions/<int:session_id>/delete/", views.session_delete, name="session_delete"),
+
+    # API Keys Admin Control
+    path("dashboard/apikeys/add/", views.apikey_create, name="apikey_create"),
+    path("dashboard/apikeys/<int:key_id>/delete/", views.apikey_delete, name="apikey_delete"),
+
+    # Questions Admin Moderation
+    path("dashboard/questions/<int:question_id>/delete/", views.question_delete, name="question_delete"),
+
+    # API REST Endpoints
+    path("api/events/", api_views.EventListCreateAPIView.as_view(), name="api_events"),
+    path("api/speakers/", api_views.SpeakerListCreateAPIView.as_view(), name="api_speakers"),
+    path("api/sessions/", api_views.SessionListAPIView.as_view(), name="api_sessions"),
+    path("api/sessions/<int:session_id>/questions/", api_views.SessionQuestionAPIView.as_view(), name="api_session_questions"),
+    path("api/schema/", api_views.api_schema, name="api_schema"),
+    path("api/docs/", api_views.swagger_docs, name="api_docs"),
 ]

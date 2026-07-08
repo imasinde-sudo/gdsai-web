@@ -11,12 +11,12 @@ class AdminSecurityTests(TestCase):
     def test_dashboard_redirects_anonymous_user(self):
         response = self.client.get(reverse('events:admin_dashboard'))
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(response.url.startswith('/admin/login/'))
+        self.assertTrue(response.url.startswith('/login/'))
 
     def test_system_status_redirects_anonymous_user(self):
         response = self.client.get(reverse('events:system_status'))
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(response.url.startswith('/admin/login/'))
+        self.assertTrue(response.url.startswith('/login/'))
 
     def test_event_create_redirects_anonymous_user(self):
         response = self.client.get(reverse('events:event_create'))
@@ -35,4 +35,28 @@ class AdminSecurityTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Event.objects.count(), 1)
         self.assertEqual(Event.objects.first().title, "New Event Testing")
+
+    def test_login_page_renders_form(self):
+        response = self.client.get(reverse('events:login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id_username')
+        self.assertContains(response, 'id_password')
+
+    def test_login_view_authenticates_correctly(self):
+        post_data = {
+            "username": "staff",
+            "password": "password"
+        }
+        response = self.client.post(reverse('events:login'), post_data)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.endswith('/dashboard/'))
+
+    def test_login_view_invalid_credentials_returns_error(self):
+        post_data = {
+            "username": "staff",
+            "password": "wrongpassword"
+        }
+        response = self.client.post(reverse('events:login'), post_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Invalid username or password')
 

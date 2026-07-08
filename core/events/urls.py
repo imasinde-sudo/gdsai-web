@@ -10,6 +10,7 @@ urlpatterns = [
     path("speakers/<int:speaker_id>/", views.speaker_detail, name="speaker_detail"),
     path("dashboard/", views.admin_dashboard, name="admin_dashboard"),
     path("system-status/", views.system_status, name="system_status"),
+    path("login/", views.login_view, name="login"),
     
     # Event CRUD
     path("dashboard/events/add/", views.event_create, name="event_create"),

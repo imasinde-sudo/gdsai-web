@@ -35,6 +35,9 @@ urlpatterns = [
     # Questions Admin Moderation
     path("dashboard/questions/<int:question_id>/delete/", views.question_delete, name="question_delete"),
 
+    # Admin Profile
+    path("dashboard/profile/", views.profile_view, name="profile_view"),
+
     # API REST Endpoints
     path("api/events/", api_views.EventListCreateAPIView.as_view(), name="api_events"),
     path("api/speakers/", api_views.SpeakerListCreateAPIView.as_view(), name="api_speakers"),

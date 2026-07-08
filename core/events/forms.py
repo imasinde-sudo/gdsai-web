@@ -53,3 +53,15 @@ class APIKeyForm(forms.ModelForm):
             "name": forms.TextInput(attrs={"placeholder": "e.g. Mobile App API Integration", "class": "form-input"}),
             "description": forms.Textarea(attrs={"placeholder": "Specify key usage rules...", "class": "form-input", "rows": 4}),
         }
+
+from django.contrib.auth.models import User
+
+class AdminProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email"]
+        widgets = {
+            "first_name": forms.TextInput(attrs={"placeholder": "First Name", "class": "form-input"}),
+            "last_name": forms.TextInput(attrs={"placeholder": "Last Name", "class": "form-input"}),
+            "email": forms.EmailInput(attrs={"placeholder": "e.g. admin@eventhub.com", "class": "form-input"}),
+        }

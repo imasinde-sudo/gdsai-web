@@ -2,8 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import user_passes_test
-from .models import Event, Speaker, Session
-from .forms import EventForm, SpeakerForm, SessionForm
+from .models import Event, Speaker, Session, APIKey, Question, Attendee
+from .forms import EventForm, SpeakerForm, SessionForm, APIKeyForm
 import sys
 import django
 
@@ -51,6 +51,8 @@ def admin_dashboard(request):
     events = Event.objects.all().order_by("start_date")
     speakers = Speaker.objects.all().order_by("name")
     sessions = Session.objects.all().order_by("start_time")
+    apikeys = APIKey.objects.all().order_by("-created_at")
+    questions = Question.objects.all().order_by("-created_at")
     
     active_tab = request.GET.get("tab", "events")
     
@@ -58,9 +60,13 @@ def admin_dashboard(request):
         "events": events,
         "speakers": speakers,
         "sessions": sessions,
+        "apikeys": apikeys,
+        "questions": questions,
         "total_events": events.count(),
         "total_speakers": speakers.count(),
         "total_sessions": sessions.count(),
+        "total_apikeys": apikeys.count(),
+        "total_questions": questions.count(),
         "active_tab": active_tab,
     }
     return render(request, "events/admin_dashboard.html", context)
@@ -184,3 +190,36 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, "events/login.html", {"form": form})
+
+
+# --- API Key Management Views ---
+@user_passes_test(check_admin, login_url='/login/')
+def apikey_create(request):
+    if request.method == "POST":
+        form = APIKeyForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("/dashboard/?tab=apikeys")
+    else:
+        form = APIKeyForm()
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Generate API Key", "active_tab": "apikeys"})
+
+
+@user_passes_test(check_admin, login_url='/login/')
+def apikey_delete(request, key_id):
+    key = get_object_or_404(APIKey, pk=key_id)
+    if request.method == "POST":
+        key.delete()
+        return redirect("/dashboard/?tab=apikeys")
+    return render(request, "events/dashboard_confirm_delete.html", {"object": key, "title": "Revoke API Key", "cancel_url": "/dashboard/?tab=apikeys"})
+
+
+# --- Q&A Moderation Views ---
+@user_passes_test(check_admin, login_url='/login/')
+def question_delete(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    if request.method == "POST":
+        question.delete()
+        return redirect("/dashboard/?tab=questions")
+    return render(request, "events/dashboard_confirm_delete.html", {"object": question, "title": "Delete Q&A Question", "cancel_url": "/dashboard/?tab=questions"})
+

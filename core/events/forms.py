@@ -1,5 +1,5 @@
 from django import forms
-from .models import Speaker, Event, Session
+from .models import Speaker, Event, Session, APIKey
 
 class EventForm(forms.ModelForm):
     class Meta:
@@ -33,7 +33,7 @@ class SpeakerForm(forms.ModelForm):
 class SessionForm(forms.ModelForm):
     class Meta:
         model = Session
-        fields = ["event", "title", "description", "start_time", "end_time", "location", "speakers"]
+        fields = ["event", "title", "description", "start_time", "end_time", "location", "speakers", "presentation_slides"]
         widgets = {
             "event": forms.Select(attrs={"class": "form-select"}),
             "title": forms.TextInput(attrs={"placeholder": "e.g. Keynote Presentation", "class": "form-input"}),
@@ -42,4 +42,14 @@ class SessionForm(forms.ModelForm):
             "end_time": forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-input"}),
             "location": forms.TextInput(attrs={"placeholder": "e.g. Room 104", "class": "form-input"}),
             "speakers": forms.SelectMultiple(attrs={"class": "form-select-multiple"}),
+            "presentation_slides": forms.ClearableFileInput(attrs={"class": "form-input-file"}),
+        }
+
+class APIKeyForm(forms.ModelForm):
+    class Meta:
+        model = APIKey
+        fields = ["name", "description"]
+        widgets = {
+            "name": forms.TextInput(attrs={"placeholder": "e.g. Mobile App API Integration", "class": "form-input"}),
+            "description": forms.Textarea(attrs={"placeholder": "Specify key usage rules...", "class": "form-input", "rows": 4}),
         }

@@ -116,4 +116,9 @@ class RESTAPITests(TestCase):
         self.assertEqual(len(get_response.data), 1)
         self.assertEqual(get_response.data[0]["text"], "How do we finetune this LLM?")
 
+    def test_api_schema_endpoint(self):
+        response = self.client.get(reverse('events:api_schema'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("openapi", response.json())
+
 

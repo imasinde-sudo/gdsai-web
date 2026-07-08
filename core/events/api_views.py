@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.schemas import SchemaGenerator
+from rest_framework.schemas.openapi import SchemaGenerator
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
@@ -73,7 +73,7 @@ class SessionQuestionAPIView(APIView):
 # API Schema and Swagger views
 def api_schema(request):
     generator = SchemaGenerator(title="EventHub Platform API", description="API endpoints for managing events, sessions, speakers, and Q&A.")
-    schema = generator.get_schema(request=request)
+    schema = generator.get_schema(request=None)
     return JsonResponse(schema)
 
 

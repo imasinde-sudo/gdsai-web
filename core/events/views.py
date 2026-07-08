@@ -1,6 +1,7 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import user_passes_test
 from .models import Event, Speaker, Session
+from .forms import EventForm, SpeakerForm, SessionForm
 import sys
 import django
 
@@ -49,6 +50,8 @@ def admin_dashboard(request):
     speakers = Speaker.objects.all().order_by("name")
     sessions = Session.objects.all().order_by("start_time")
     
+    active_tab = request.GET.get("tab", "events")
+    
     context = {
         "events": events,
         "speakers": speakers,
@@ -56,6 +59,7 @@ def admin_dashboard(request):
         "total_events": events.count(),
         "total_speakers": speakers.count(),
         "total_sessions": sessions.count(),
+        "active_tab": active_tab,
     }
     return render(request, "events/admin_dashboard.html", context)
 
@@ -66,5 +70,102 @@ def system_status(request):
         "django_version": django.get_version(),
     }
     return render(request, "events/system_status.html", context)
+
+# --- Events CRUD Views ---
+@user_passes_test(check_admin, login_url='/admin/login/')
+def event_create(request):
+    if request.method == "POST":
+        form = EventForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("/dashboard/?tab=events")
+    else:
+        form = EventForm()
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Create Event", "active_tab": "events"})
+
+@user_passes_test(check_admin, login_url='/admin/login/')
+def event_edit(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    if request.method == "POST":
+        form = EventForm(request.POST, request.FILES, instance=event)
+        if form.is_valid():
+            form.save()
+            return redirect("/dashboard/?tab=events")
+    else:
+        form = EventForm(instance=event)
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Edit Event", "active_tab": "events"})
+
+@user_passes_test(check_admin, login_url='/admin/login/')
+def event_delete(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    if request.method == "POST":
+        event.delete()
+        return redirect("/dashboard/?tab=events")
+    return render(request, "events/dashboard_confirm_delete.html", {"object": event, "title": "Delete Event", "cancel_url": "/dashboard/?tab=events"})
+
+# --- Speakers CRUD Views ---
+@user_passes_test(check_admin, login_url='/admin/login/')
+def speaker_create(request):
+    if request.method == "POST":
+        form = SpeakerForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("/dashboard/?tab=speakers")
+    else:
+        form = SpeakerForm()
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Create Speaker", "active_tab": "speakers"})
+
+@user_passes_test(check_admin, login_url='/admin/login/')
+def speaker_edit(request, speaker_id):
+    speaker = get_object_or_404(Speaker, pk=speaker_id)
+    if request.method == "POST":
+        form = SpeakerForm(request.POST, request.FILES, instance=speaker)
+        if form.is_valid():
+            form.save()
+            return redirect("/dashboard/?tab=speakers")
+    else:
+        form = SpeakerForm(instance=speaker)
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Edit Speaker", "active_tab": "speakers"})
+
+@user_passes_test(check_admin, login_url='/admin/login/')
+def speaker_delete(request, speaker_id):
+    speaker = get_object_or_404(Speaker, pk=speaker_id)
+    if request.method == "POST":
+        speaker.delete()
+        return redirect("/dashboard/?tab=speakers")
+    return render(request, "events/dashboard_confirm_delete.html", {"object": speaker, "title": "Delete Speaker", "cancel_url": "/dashboard/?tab=speakers"})
+
+# --- Sessions CRUD Views ---
+@user_passes_test(check_admin, login_url='/admin/login/')
+def session_create(request):
+    if request.method == "POST":
+        form = SessionForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("/dashboard/?tab=sessions")
+    else:
+        form = SessionForm()
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Create Session", "active_tab": "sessions"})
+
+@user_passes_test(check_admin, login_url='/admin/login/')
+def session_edit(request, session_id):
+    session = get_object_or_404(Session, pk=session_id)
+    if request.method == "POST":
+        form = SessionForm(request.POST, request.FILES, instance=session)
+        if form.is_valid():
+            form.save()
+            return redirect("/dashboard/?tab=sessions")
+    else:
+        form = SessionForm(instance=session)
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Edit Session", "active_tab": "sessions"})
+
+@user_passes_test(check_admin, login_url='/admin/login/')
+def session_delete(request, session_id):
+    session = get_object_or_404(Session, pk=session_id)
+    if request.method == "POST":
+        session.delete()
+        return redirect("/dashboard/?tab=sessions")
+    return render(request, "events/dashboard_confirm_delete.html", {"object": session, "title": "Delete Session", "cancel_url": "/dashboard/?tab=sessions"})
+
 
 

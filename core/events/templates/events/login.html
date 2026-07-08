@@ -1,0 +1,41 @@
+{% extends "events/base.html" %}
+
+{% block title %}Sign In - EventHub{% endblock %}
+
+{% block content %}
+<header style="margin-bottom: 3rem; text-align: center;">
+  <h1 class="gradient-title" style="font-size: 2.25rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem;">Access Management Center</h1>
+  <p class="section-subtitle">Please authenticate to manage events schedules and speakers.</p>
+</header>
+
+<div class="form-card" style="max-width: 420px; padding: 3rem 2.5rem;">
+  <form method="post">
+    {% csrf_token %}
+    
+    <div class="form-group-wrapper" style="margin-bottom: 2rem;">
+      <!-- Username Field -->
+      <div class="form-group-field">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        <input type="text" name="username" autofocus required id="id_username" class="form-input" placeholder="e.g. admin">
+      </div>
+      
+      <!-- Password Field -->
+      <div class="form-group-field">
+        <label for="{{ form.password.id_for_label }}">Password</label>
+        <input type="password" name="password" required id="id_password" class="form-input" placeholder="••••••••">
+      </div>
+    </div>
+
+    <!-- Error Alert Section -->
+    {% if form.errors %}
+      <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.85rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center;">
+        <span style="font-size: 0.85rem; color: var(--accent-red); font-weight: 600;">Invalid username or password. Please try again.</span>
+      </div>
+    {% endif %}
+
+    <button type="submit" class="btn-submit-save" style="width: 100%; padding: 0.85rem 2rem; font-size: 0.95rem;">
+      Sign In
+    </button>
+  </form>
+</div>
+{% endblock %}

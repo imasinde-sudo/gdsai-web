@@ -1,4 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import user_passes_test
 from .models import Event, Speaker, Session
 from .forms import EventForm, SpeakerForm, SessionForm
@@ -44,7 +46,7 @@ def landing_page(request):
     featured_events = Event.objects.all().order_by("start_date")[:3]
     return render(request, "events/landing_page.html", {"featured_events": featured_events})
 
-@user_passes_test(check_admin, login_url='/admin/login/')
+@user_passes_test(check_admin, login_url='/login/')
 def admin_dashboard(request):
     events = Event.objects.all().order_by("start_date")
     speakers = Speaker.objects.all().order_by("name")
@@ -63,7 +65,7 @@ def admin_dashboard(request):
     }
     return render(request, "events/admin_dashboard.html", context)
 
-@user_passes_test(check_super, login_url='/admin/login/')
+@user_passes_test(check_super, login_url='/login/')
 def system_status(request):
     context = {
         "python_version": sys.version,
@@ -72,7 +74,7 @@ def system_status(request):
     return render(request, "events/system_status.html", context)
 
 # --- Events CRUD Views ---
-@user_passes_test(check_admin, login_url='/admin/login/')
+@user_passes_test(check_admin, login_url='/login/')
 def event_create(request):
     if request.method == "POST":
         form = EventForm(request.POST, request.FILES)
@@ -83,7 +85,7 @@ def event_create(request):
         form = EventForm()
     return render(request, "events/dashboard_form.html", {"form": form, "title": "Create Event", "active_tab": "events"})
 
-@user_passes_test(check_admin, login_url='/admin/login/')
+@user_passes_test(check_admin, login_url='/login/')
 def event_edit(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     if request.method == "POST":
@@ -95,7 +97,7 @@ def event_edit(request, event_id):
         form = EventForm(instance=event)
     return render(request, "events/dashboard_form.html", {"form": form, "title": "Edit Event", "active_tab": "events"})
 
-@user_passes_test(check_admin, login_url='/admin/login/')
+@user_passes_test(check_admin, login_url='/login/')
 def event_delete(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     if request.method == "POST":
@@ -104,7 +106,7 @@ def event_delete(request, event_id):
     return render(request, "events/dashboard_confirm_delete.html", {"object": event, "title": "Delete Event", "cancel_url": "/dashboard/?tab=events"})
 
 # --- Speakers CRUD Views ---
-@user_passes_test(check_admin, login_url='/admin/login/')
+@user_passes_test(check_admin, login_url='/login/')
 def speaker_create(request):
     if request.method == "POST":
         form = SpeakerForm(request.POST, request.FILES)
@@ -115,7 +117,7 @@ def speaker_create(request):
         form = SpeakerForm()
     return render(request, "events/dashboard_form.html", {"form": form, "title": "Create Speaker", "active_tab": "speakers"})
 
-@user_passes_test(check_admin, login_url='/admin/login/')
+@user_passes_test(check_admin, login_url='/login/')
 def speaker_edit(request, speaker_id):
     speaker = get_object_or_404(Speaker, pk=speaker_id)
     if request.method == "POST":
@@ -127,7 +129,7 @@ def speaker_edit(request, speaker_id):
         form = SpeakerForm(instance=speaker)
     return render(request, "events/dashboard_form.html", {"form": form, "title": "Edit Speaker", "active_tab": "speakers"})
 
-@user_passes_test(check_admin, login_url='/admin/login/')
+@user_passes_test(check_admin, login_url='/login/')
 def speaker_delete(request, speaker_id):
     speaker = get_object_or_404(Speaker, pk=speaker_id)
     if request.method == "POST":
@@ -136,7 +138,7 @@ def speaker_delete(request, speaker_id):
     return render(request, "events/dashboard_confirm_delete.html", {"object": speaker, "title": "Delete Speaker", "cancel_url": "/dashboard/?tab=speakers"})
 
 # --- Sessions CRUD Views ---
-@user_passes_test(check_admin, login_url='/admin/login/')
+@user_passes_test(check_admin, login_url='/login/')
 def session_create(request):
     if request.method == "POST":
         form = SessionForm(request.POST, request.FILES)
@@ -147,7 +149,7 @@ def session_create(request):
         form = SessionForm()
     return render(request, "events/dashboard_form.html", {"form": form, "title": "Create Session", "active_tab": "sessions"})
 
-@user_passes_test(check_admin, login_url='/admin/login/')
+@user_passes_test(check_admin, login_url='/login/')
 def session_edit(request, session_id):
     session = get_object_or_404(Session, pk=session_id)
     if request.method == "POST":
@@ -159,7 +161,7 @@ def session_edit(request, session_id):
         form = SessionForm(instance=session)
     return render(request, "events/dashboard_form.html", {"form": form, "title": "Edit Session", "active_tab": "sessions"})
 
-@user_passes_test(check_admin, login_url='/admin/login/')
+@user_passes_test(check_admin, login_url='/login/')
 def session_delete(request, session_id):
     session = get_object_or_404(Session, pk=session_id)
     if request.method == "POST":
@@ -167,5 +169,18 @@ def session_delete(request, session_id):
         return redirect("/dashboard/?tab=sessions")
     return render(request, "events/dashboard_confirm_delete.html", {"object": session, "title": "Delete Session", "cancel_url": "/dashboard/?tab=sessions"})
 
-
-
+# --- Authentication Views ---
+def login_view(request):
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                next_url = request.GET.get('next', '/dashboard/')
+                return redirect(next_url)
+    else:
+        form = AuthenticationForm()
+    return render(request, "events/login.html", {"form": form})

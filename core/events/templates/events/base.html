@@ -31,11 +31,9 @@
         <li>
           <a href="{% url 'events:event_list' %}" class="navbar-link" id="nav-events">Events</a>
         </li>
-        {% if user.is_authenticated and user.is_staff %}
         <li>
           <a href="{% url 'events:admin_dashboard' %}" class="navbar-link" id="nav-dashboard">Dashboard</a>
         </li>
-        {% endif %}
         <li>
           <a href="/admin/" class="navbar-link" id="nav-admin" target="_blank">Admin Dashboard</a>
         </li>

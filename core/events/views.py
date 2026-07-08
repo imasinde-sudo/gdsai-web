@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import user_passes_test
 from .models import Event, Speaker, Session, APIKey, Question, Attendee
-from .forms import EventForm, SpeakerForm, SessionForm, APIKeyForm
+from .forms import EventForm, SpeakerForm, SessionForm, APIKeyForm, AdminProfileForm
 import sys
 import django
 
@@ -222,4 +222,18 @@ def question_delete(request, question_id):
         question.delete()
         return redirect("/dashboard/?tab=questions")
     return render(request, "events/dashboard_confirm_delete.html", {"object": question, "title": "Delete Q&A Question", "cancel_url": "/dashboard/?tab=questions"})
+
+
+# --- Admin Profile View ---
+@user_passes_test(check_admin, login_url='/login/')
+def profile_view(request):
+    user = request.user
+    if request.method == "POST":
+        form = AdminProfileForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect("events:profile_view")
+    else:
+        form = AdminProfileForm(instance=user)
+    return render(request, "events/admin_profile.html", {"form": form, "user": user, "active_tab": "profile"})
 

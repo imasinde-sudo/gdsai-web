@@ -60,6 +60,32 @@ class AdminSecurityTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Invalid username or password')
 
+    def test_profile_page_redirects_anonymous_user(self):
+        response = self.client.get(reverse('events:profile_view'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_profile_page_accessible_by_staff_user(self):
+        self.client.login(username="staff", password="password")
+        response = self.client.get(reverse('events:profile_view'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Administrator Profile')
+
+    def test_profile_update_submits_correctly(self):
+        self.client.login(username="staff", password="password")
+        post_data = {
+            "first_name": "NewFirstName",
+            "last_name": "NewLastName",
+            "email": "updatedadmin@eventhub.com"
+        }
+        response = self.client.post(reverse('events:profile_view'), post_data)
+        self.assertEqual(response.status_code, 302)
+        
+        # Verify database fields updated
+        self.staff_user.refresh_from_db()
+        self.assertEqual(self.staff_user.first_name, "NewFirstName")
+        self.assertEqual(self.staff_user.last_name, "NewLastName")
+        self.assertEqual(self.staff_user.email, "updatedadmin@eventhub.com")
+
 
 class RESTAPITests(TestCase):
     def setUp(self):

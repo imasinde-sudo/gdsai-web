@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import user_passes_test
 from .models import Event, Speaker, Session, APIKey, Question, Attendee
@@ -236,4 +236,9 @@ def profile_view(request):
     else:
         form = AdminProfileForm(instance=user)
     return render(request, "events/admin_profile.html", {"form": form, "user": user, "active_tab": "profile"})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("events:landing_page")
 

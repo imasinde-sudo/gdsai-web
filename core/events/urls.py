@@ -12,6 +12,7 @@ urlpatterns = [
     path("dashboard/", views.admin_dashboard, name="admin_dashboard"),
     path("system-status/", views.system_status, name="system_status"),
     path("login/", views.login_view, name="login"),
+    path("logout/", views.logout_view, name="logout"),
     
     # Event CRUD
     path("dashboard/events/add/", views.event_create, name="event_create"),

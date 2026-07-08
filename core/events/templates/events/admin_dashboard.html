@@ -9,6 +9,12 @@
     <h1>Good Afternoon, {{ user.username }}</h1>
     <p>{% now "l, j F Y" %}</p>
   </div>
+  <div class="dashboard-header-actions">
+    <a href="{% url 'events:logout' %}" class="btn-sidebar-logout" style="width: auto; padding: 0.6rem 1.5rem; font-size: 0.85rem; font-weight: 700; border-radius: 9999px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.35rem; display: inline-block; vertical-align: middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      <span style="vertical-align: middle;">LOGOUT</span>
+    </a>
+  </div>
 </header>
 
 <!-- Metrics Card Grid (borrowed layout from screenshot) -->

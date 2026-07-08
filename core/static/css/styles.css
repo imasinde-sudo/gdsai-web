@@ -10,6 +10,7 @@
   --bg-secondary: #131a2e;
   --accent-cyan: #06b6d4;
   --accent-purple: #8b5cf6;
+  --accent-red: #ef4444;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border-glass: rgba(255, 255, 255, 0.08);
@@ -712,10 +713,10 @@ a {
 
 .sidebar-link.active {
   color: #fff !important;
-  background-color: #0012ff !important;
+  background-color: #6366f1 !important;
   border-radius: 9999px !important;
   border-left: none !important;
-  box-shadow: 0 4px 15px rgba(0, 18, 255, 0.4);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
 }
 
 .btn-sidebar-logout {
@@ -725,23 +726,24 @@ a {
   gap: 0.75rem;
   width: 100%;
   padding: 0.85rem 1.5rem;
-  background-color: #0012ff;
-  color: #fff;
+  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 9999px;
   font-weight: 700;
   font-size: 0.95rem;
   text-transform: uppercase;
-  border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 15px rgba(0, 18, 255, 0.4);
   text-decoration: none;
 }
 
 .btn-sidebar-logout:hover {
-  background-color: #000ecc;
+  background-color: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #ef4444;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 18, 255, 0.6);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);
 }
 
 /* Dashboard Content */

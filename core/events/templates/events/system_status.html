@@ -40,12 +40,12 @@
         <td style="padding: 1.25rem 1rem; color: var(--text-muted); font-family: monospace;">{{ django_version }}</td>
       </tr>
       <tr style="border-bottom: 1px solid var(--border-glass);">
-        <td style="padding: 1.25rem 1rem; color: var(--accent-cyan); font-weight: 500;">Dynamic DB Setting</td>
-        <td style="padding: 1.25rem 1rem; color: var(--text-muted);">Active (Auto-switching Postgres/SQLite)</td>
+        <td style="padding: 1.25rem 1rem; color: var(--accent-cyan); font-weight: 500;">Database Engine</td>
+        <td style="padding: 1.25rem 1rem; color: var(--text-muted); font-family: monospace;">{{ database_engine }}</td>
       </tr>
       <tr>
-        <td style="padding: 1.25rem 1rem; color: var(--accent-cyan); font-weight: 500;">Access Privileges</td>
-        <td style="padding: 1.25rem 1rem; color: #10b981; font-weight: 600;">SUPERUSER_AUTHORIZED</td>
+        <td style="padding: 1.25rem 1rem; color: var(--accent-cyan); font-weight: 500;">Debug Mode</td>
+        <td style="padding: 1.25rem 1rem; font-weight: 600; color: {% if debug_mode %}#f59e0b{% else %}#10b981{% endif %};">{{ debug_mode|yesno:"ENABLED,DISABLED" }}</td>
       </tr>
     </tbody>
   </table>

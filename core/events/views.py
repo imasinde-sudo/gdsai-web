@@ -9,16 +9,10 @@ import sys
 import django
 
 def check_admin(user):
-    if user.is_authenticated:
-        if user.is_staff:
-            return True
-    return False
+    return user.is_authenticated and user.is_staff
 
 def check_super(user):
-    if user.is_authenticated:
-        if user.is_superuser:
-            return True
-    return False
+    return user.is_authenticated and user.is_superuser
 
 def event_list(request):
     events = Event.objects.all().order_by("start_date")
@@ -27,7 +21,7 @@ def event_list(request):
 def event_detail(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     # Prefetch sessions and their speakers to optimize DB queries
-    sessions = event.sessions.all().prefetch_related("speakers")
+    sessions = event.sessions.all().prefetch_related("speakers", "questions")
     return render(request, "events/event_detail.html", {
         "event": event,
         "sessions": sessions
@@ -74,9 +68,12 @@ def admin_dashboard(request):
 
 @user_passes_test(check_super, login_url='events:login')
 def system_status(request):
+    from django.conf import settings as django_settings
     context = {
         "python_version": sys.version,
         "django_version": django.get_version(),
+        "database_engine": django_settings.DATABASES["default"]["ENGINE"],
+        "debug_mode": django_settings.DEBUG,
     }
     return render(request, "events/system_status.html", context)
 

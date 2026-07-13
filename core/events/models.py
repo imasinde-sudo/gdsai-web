@@ -52,7 +52,7 @@ class Attendee(models.Model):
     registered_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.name} ({self.email}) - {self.event.title}"
+        return f"{self.name} — {self.event.title}"
 
 
 class APIKey(models.Model):

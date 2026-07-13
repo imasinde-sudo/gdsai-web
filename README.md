@@ -2,7 +2,7 @@
 
 A robust, glassmorphic events management system built with Python, Django, PostgreSQL, and Docker. 
 
-The system features dynamic event scheduling, interactive timetable timelines, and detailed speaker profile management. It is designed to scale using environment configurations and running dockerized dependencies.
+The system features dynamic event scheduling, interactive timetable timelines, detailed speaker profile management, and a versioned public REST API designed for mobile app integration.
 
 ---
 
@@ -13,7 +13,7 @@ This project isolates settings and configurations from the main feature modules:
     *   `core/settings.py` - Manages Postgres database profiles (inside Docker) with automatic fallback to local SQLite (outside Docker).
     *   `events/` - Feature app containing database schemas, views, templates, and layouts.
 *   `Dockerfile` & `docker-compose.yml` - Container configurations.
-*   `requirements.txt` - Python package dependencies (including `Pillow` and `psycopg2-binary`).
+*   `requirements.txt` - Python package dependencies (including `Pillow`, `psycopg2-binary`, `djangorestframework`, and `django-cors-headers`).
 *   `.env` & `.env.example` - Key-value parameters for environment variables.
 
 ---
@@ -26,6 +26,15 @@ Before running the application, make sure to set up your environment configurati
    cp .env.example .env
    ```
 2. Adjust any parameters as needed. The default configuration is optimized to work out-of-the-box for both local development and Docker containers.
+
+Key variables available:
+
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `DJANGO_SECRET_KEY` | Django security key | insecure dev default |
+| `DJANGO_DEBUG` | Debug mode toggle | `True` |
+| `DB_NAME` | PostgreSQL database name | (none — falls back to SQLite) |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated allowed origins for mobile API in production | (none — all allowed in DEBUG mode) |
 
 ---
 
@@ -89,18 +98,55 @@ If you don't have Docker running, the settings automatically fall back to SQLite
 
 ## 🔗 URL Routing Maps
 
+### Web Application Routes
+
 *   `http://localhost:8000/` - **Home Landing Page** (Hero banner, counter stats, and top 3 featured events).
 *   `http://localhost:8000/events/` - **Explore Events** (Grid view of all published events).
 *   `http://localhost:8000/events/<id>/` - **Event Timetable** (Chronological schedule of sessions and speakers).
 *   `http://localhost:8000/speakers/<id>/` - **Speaker Profile** (Bio, email, social links, and scheduled sessions).
-*   `http://localhost:8000/admin/` - **Django Admin panel** (Access interface to manage entries).
+*   `http://localhost:8000/dashboard/` - **Admin Dashboard** (Staff-only panel for managing events, speakers, and sessions).
+*   `http://localhost:8000/admin/` - **Django Admin panel** (Access interface to manage entries directly).
+
+### Mobile API v1 — Public Endpoints
+
+All mobile API endpoints are versioned under `/api/v1/` and return `application/json`. No authentication is required for these read-only content endpoints.
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/events/` | Paginated list of all events (includes `sessions_count`). |
+| `GET` | `/api/v1/events/<id>/` | Full event details. |
+| `GET` | `/api/v1/events/<id>/sessions/` | All timetable sessions for a specific event. |
+| `GET` | `/api/v1/speakers/` | Lightweight speaker directory list. |
+| `GET` | `/api/v1/speakers/<id>/` | Full speaker profile. |
+| `GET` | `/api/v1/sessions/<id>/` | Session detail including speakers and slides URL. |
+| `GET` | `/api/v1/sessions/<id>/questions/` | List Q&A questions for a session. |
+| `POST` | `/api/v1/sessions/<id>/questions/` | Submit a Q&A question (public write). |
+
+### Admin REST API — Protected Endpoints
+
+Admin API endpoints require an `X-API-KEY` header containing a valid active API key (managed from the dashboard).
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET/POST` | `/api/events/` | List or create events. |
+| `GET/POST` | `/api/speakers/` | List or create speakers. |
+| `GET` | `/api/sessions/` | List all sessions. |
+| `GET` | `/api/schema/` | OpenAPI schema (JSON). |
+| `GET` | `/api/docs/` | Interactive Swagger UI documentation. |
 
 ---
 
 ## 💻 Development Workflow
+
+### Running Tests
+```bash
+cd core
+python manage.py test events --verbosity=2
+```
 
 ### Git Branching Strategy
 To keep the repository clean and structured:
 1.  **`main` Branch**: Contains stable, production-ready core project structures.
 2.  **`dev` Branch**: The main integration branch for core configuration changes.
 3.  **Feature Branches (`feature/your-feature`)**: All active development (new views, templates, or schemas) must be done on branches off `dev`.
+

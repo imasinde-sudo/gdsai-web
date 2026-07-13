@@ -1,5 +1,7 @@
 from django import forms
+from django.contrib.auth.models import User
 from .models import Speaker, Event, Session, APIKey
+
 
 class EventForm(forms.ModelForm):
     class Meta:
@@ -13,6 +15,15 @@ class EventForm(forms.ModelForm):
             "location": forms.TextInput(attrs={"placeholder": "e.g. Hall C / Online", "class": "form-input"}),
             "banner_image": forms.ClearableFileInput(attrs={"class": "form-input-file"}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start = cleaned_data.get("start_date")
+        end = cleaned_data.get("end_date")
+        if start and end and end <= start:
+            raise forms.ValidationError("End date must be after the start date.")
+        return cleaned_data
+
 
 class SpeakerForm(forms.ModelForm):
     class Meta:
@@ -30,6 +41,7 @@ class SpeakerForm(forms.ModelForm):
             "website": forms.URLInput(attrs={"placeholder": "e.g. https://example.com", "class": "form-input"}),
         }
 
+
 class SessionForm(forms.ModelForm):
     class Meta:
         model = Session
@@ -45,6 +57,15 @@ class SessionForm(forms.ModelForm):
             "presentation_slides": forms.ClearableFileInput(attrs={"class": "form-input-file"}),
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        start = cleaned_data.get("start_time")
+        end = cleaned_data.get("end_time")
+        if start and end and end <= start:
+            raise forms.ValidationError("End time must be after the start time.")
+        return cleaned_data
+
+
 class APIKeyForm(forms.ModelForm):
     class Meta:
         model = APIKey
@@ -54,7 +75,6 @@ class APIKeyForm(forms.ModelForm):
             "description": forms.Textarea(attrs={"placeholder": "Specify key usage rules...", "class": "form-input", "rows": 4}),
         }
 
-from django.contrib.auth.models import User
 
 class AdminProfileForm(forms.ModelForm):
     class Meta:

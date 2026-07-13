@@ -39,11 +39,20 @@ urlpatterns = [
     # Admin Profile
     path("dashboard/profile/", views.profile_view, name="profile_view"),
 
-    # API REST Endpoints
+    # API REST Endpoints (Admin — protected by X-API-KEY header)
     path("api/events/", api_views.EventListCreateAPIView.as_view(), name="api_events"),
     path("api/speakers/", api_views.SpeakerListCreateAPIView.as_view(), name="api_speakers"),
     path("api/sessions/", api_views.SessionListAPIView.as_view(), name="api_sessions"),
     path("api/sessions/<int:session_id>/questions/", api_views.SessionQuestionAPIView.as_view(), name="api_session_questions"),
     path("api/schema/", api_views.api_schema, name="api_schema"),
     path("api/docs/", api_views.swagger_docs, name="api_docs"),
+
+    # Mobile API v1 — Public read-only content endpoints
+    path("api/v1/events/", api_views.MobileEventListView.as_view(), name="v1_event_list"),
+    path("api/v1/events/<int:pk>/", api_views.MobileEventDetailView.as_view(), name="v1_event_detail"),
+    path("api/v1/events/<int:event_id>/sessions/", api_views.MobileEventSessionsView.as_view(), name="v1_event_sessions"),
+    path("api/v1/speakers/", api_views.MobileSpeakerListView.as_view(), name="v1_speaker_list"),
+    path("api/v1/speakers/<int:pk>/", api_views.MobileSpeakerDetailView.as_view(), name="v1_speaker_detail"),
+    path("api/v1/sessions/<int:pk>/", api_views.MobileSessionDetailView.as_view(), name="v1_session_detail"),
+    path("api/v1/sessions/<int:session_id>/questions/", api_views.MobileSessionQuestionsView.as_view(), name="v1_session_questions"),
 ]

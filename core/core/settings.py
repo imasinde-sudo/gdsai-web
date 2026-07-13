@@ -38,10 +38,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "corsheaders",
     "events.apps.EventsConfig",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",  # Must be before CommonMiddleware
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -52,6 +55,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "core.urls"
+
+# Use BigAutoField as the default primary key type (suppresses Django 3.2+ warning)
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 TEMPLATES = [
     {
@@ -136,3 +142,20 @@ STATICFILES_DIRS = [
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+
+# Django REST Framework configuration
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
+}
+
+# CORS configuration
+# In development (DEBUG=True), all origins are permitted.
+# In staging/production (DEBUG=False), set CORS_ALLOWED_ORIGINS env var as a
+# comma-separated list of allowed domains, e.g.:
+#   CORS_ALLOWED_ORIGINS=https://yourmobileapp.com,https://staging.yourmobileapp.com
+_cors_allowed_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "")
+if _cors_allowed_origins:
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _cors_allowed_origins.split(",") if origin.strip()]
+else:
+    CORS_ALLOW_ALL_ORIGINS = DEBUG

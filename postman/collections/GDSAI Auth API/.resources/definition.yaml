@@ -1,8 +1,0 @@
-$kind: collection
-name: GDSAI Auth API
-description: Authentication API tests for the GDSAI web platform
-auth:
-  type: bearer
-  credentials:
-    - key: token
-      value: '{{access_token}}'

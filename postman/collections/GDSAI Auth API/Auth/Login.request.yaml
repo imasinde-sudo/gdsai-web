@@ -1,0 +1,65 @@
+$kind: http-request
+name: Login
+description: |-
+  Authenticates an existing user using email and password. Returns a JWT access token and refresh token.
+
+  **Request Body:**
+  | Field | Type | Required | Description |
+  |---|---|---|---|
+  | email | string | ✅ | User's email address |
+  | password | string | ✅ | Account password |
+
+  **Success Response (200 OK):**
+  ```json
+  {
+    "access": "<jwt_access_token>",
+    "refresh": "<jwt_refresh_token>"
+  }
+  ```
+
+  **Error Responses:**
+  - `401 Unauthorized` — Invalid credentials
+  - `400 Bad Request` — Missing fields
+
+  > ⚙️ On success, `access_token` and `refresh_token` are automatically saved to the active environment.
+method: POST
+url: '{{base_url}}/api/v1/auth/login/'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "{{test_email}}",
+      "password": "{{test_password}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response has access and refresh fields", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("access");
+          pm.expect(jsonData).to.have.property("refresh");
+      });
+
+      pm.test("Access token is a non-empty string", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.access).to.be.a("string").and.to.have.length.above(0);
+      });
+
+      pm.test("Response time is less than 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+      var jsonData = pm.response.json();
+      if (jsonData.access) {
+          pm.environment.set("access_token", jsonData.access);
+          pm.environment.set("refresh_token", jsonData.refresh);
+      }

@@ -18,8 +18,8 @@ description: |-
   ```
 
   **Error Responses:**
-  - `401 Unauthorized` â€” Missing or invalid access token
-  - `400 Bad Request` â€” Refresh token already blacklisted or invalid
+  - `401 Unauthorized` — Missing or invalid access token
+  - `400 Bad Request` — Refresh token already blacklisted or invalid
 
   > âš™ï¸ On success, `access_token` and `refresh_token` are cleared from the active environment.
 method: POST

@@ -100,14 +100,12 @@ Creates a new user account and returns the user profile along with JWT tokens.
 Authenticates an existing user and returns JWT tokens.
 
 **Request Body:**
-```json
-{
-  "username": "user@example.com",
-  "password": "YourPassword123!"
-}
-```
+    {
+      "email": "user@example.com",
+      "password": "YourPassword123!"
+    }
 
-> **Note:** The field is named `username` but expects an **email address**.
+> **Note:** The field is named `email` and expects an **email address**.
 
 **Success Response — `200 OK`:**
 ```json

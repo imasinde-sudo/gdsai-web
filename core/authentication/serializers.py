@@ -50,18 +50,24 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'
 
     def validate(self, attrs):
-        email = attrs.get('email')
-        password = attrs.get('password')
+        email = attrs.get("email")
+        password = attrs.get("password")
 
-        user = authenticate(request=self.context.get('request'), email=email, password=password)
+        user = authenticate(
+            request=self.context.get("request"),
+            email=email,
+            password=password,
+        )
 
         if user is None:
             raise AuthenticationFailed(
-                'No active account found with the given credentials',
-                'no_active_account',
+                "No active account found with the given credentials",
+                "no_active_account",
             )
 
-        # Temporarily set username field so the parent token generation works
-        attrs[self.username_field] = email
-        data = super().validate(attrs)
-        return data
+        self.user = user
+        refresh = self.get_token(self.user)
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }

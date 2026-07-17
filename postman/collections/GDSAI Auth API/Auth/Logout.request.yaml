@@ -1,0 +1,61 @@
+﻿$kind: http-request
+name: Logout
+description: |-
+  Logs out the authenticated user by blacklisting the provided refresh token, preventing it from being used again.
+
+  **Authentication:** Requires a valid Bearer access token in the `Authorization` header.
+
+  **Request Body:**
+  | Field | Type | Required | Description |
+  |---|---|---|---|
+  | refresh | string | âœ… | The refresh token to blacklist |
+
+  **Success Response (205 Reset Content):**
+  ```json
+  {
+    "detail": "Successfully logged out."
+  }
+  ```
+
+  **Error Responses:**
+  - `401 Unauthorized` â€” Missing or invalid access token
+  - `400 Bad Request` â€” Refresh token already blacklisted or invalid
+
+  > âš™ï¸ On success, `access_token` and `refresh_token` are cleared from the active environment.
+method: POST
+url: '{{base_url}}/api/v1/auth/logout/'
+order: 4000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{access_token}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "refresh": "{{refresh_token}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 205", function () {
+          pm.response.to.have.status(205);
+      });
+
+      pm.test("Response has detail field equal to 'Successfully logged out.'", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("detail");
+          pm.expect(jsonData.detail).to.eql("Successfully logged out.");
+      });
+
+      pm.test("Response time is less than 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+      pm.environment.set("access_token", "");
+      pm.environment.set("refresh_token", "");

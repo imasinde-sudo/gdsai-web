@@ -1,4 +1,4 @@
-﻿$kind: http-request
+$kind: http-request
 name: Logout
 description: |-
   Logs out the authenticated user by blacklisting the provided refresh token, preventing it from being used again.

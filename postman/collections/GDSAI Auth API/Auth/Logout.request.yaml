@@ -8,7 +8,7 @@ description: |-
   **Request Body:**
   | Field | Type | Required | Description |
   |---|---|---|---|
-  | refresh | string | âœ… | The refresh token to blacklist |
+  | refresh | string | ✅ | The refresh token to blacklist |
 
   **Success Response (205 Reset Content):**
   ```json

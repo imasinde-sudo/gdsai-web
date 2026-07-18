@@ -45,10 +45,13 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "corsheaders",
     "authentication",
+    "events.apps.EventsConfig",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",  # Must be before CommonMiddleware
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -60,6 +63,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "core.urls"
 
+# Use BigAutoField as the default primary key type (suppresses Django 3.2+ warning)
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -136,16 +141,35 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
-# REST Framework Settings
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny",
     ),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
 }
+
+# CORS configuration
+# In development (DEBUG=True), all origins are permitted.
+# In staging/production (DEBUG=False), set CORS_ALLOWED_ORIGINS env var as a
+# comma-separated list of allowed domains, e.g.:
+#   CORS_ALLOWED_ORIGINS=https://yourmobileapp.com,https://staging.yourmobileapp.com
+_cors_allowed_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "")
+if _cors_allowed_origins:
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _cors_allowed_origins.split(",") if origin.strip()]
+else:
+    CORS_ALLOW_ALL_ORIGINS = DEBUG
 
 # Simple JWT Settings
 SIMPLE_JWT = {

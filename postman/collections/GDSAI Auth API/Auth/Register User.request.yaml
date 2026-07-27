@@ -1,0 +1,79 @@
+﻿$kind: http-request
+name: Register User
+description: |-
+  Creates a new user account and returns the user profile along with JWT access and refresh tokens.
+
+  **Request Body:**
+  | Field | Type | Required | Description |
+  |---|---|---|---|
+  | email | string | âœ… | User's email address (used as login username) |
+  | password | string | âœ… | Account password |
+  | first_name | string | âœ… | User's first name |
+  | last_name | string | âœ… | User's last name |
+
+  **Success Response (201 Created):**
+  ```json
+  {
+    "user": { "id": 1, "email": "user@example.com", "first_name": "Test", "last_name": "User", "date_joined": "2026-07-14T20:00:00Z" },
+    "tokens": { "access": "<jwt_access_token>", "refresh": "<jwt_refresh_token>" }
+  }
+  ```
+
+  **Error Responses:**
+  - `400 Bad Request` â€” Missing required fields or email already registered
+
+  > âš™ï¸ On success, `access_token` and `refresh_token` are automatically saved to the active environment.
+method: POST
+url: '{{base_url}}/api/v1/auth/register/'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "{{test_email}}",
+      "password": "{{test_password}}",
+      "first_name": "Test",
+      "last_name": "User"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("Response has user object with required fields", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("user");
+          pm.expect(jsonData.user).to.have.property("id");
+          pm.expect(jsonData.user).to.have.property("email");
+          pm.expect(jsonData.user).to.have.property("first_name");
+          pm.expect(jsonData.user).to.have.property("last_name");
+          pm.expect(jsonData.user).to.have.property("date_joined");
+      });
+
+      pm.test("Response has tokens object with access and refresh fields", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("tokens");
+          pm.expect(jsonData.tokens).to.have.property("access");
+          pm.expect(jsonData.tokens).to.have.property("refresh");
+      });
+
+      pm.test("Email in response matches test_email", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.user.email).to.eql(pm.environment.get("test_email"));
+      });
+
+      pm.test("Response time is less than 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+      var jsonData = pm.response.json();
+      if (jsonData.tokens) {
+          pm.environment.set("access_token", jsonData.tokens.access);
+          pm.environment.set("refresh_token", jsonData.tokens.refresh);
+      }

@@ -119,8 +119,19 @@ All mobile API endpoints are versioned under `/api/v1/` and return `application/
 | `GET` | `/api/v1/speakers/` | Lightweight speaker directory list. |
 | `GET` | `/api/v1/speakers/<id>/` | Full speaker profile. |
 | `GET` | `/api/v1/sessions/<id>/` | Session detail including speakers and slides URL. |
-| `GET` | `/api/v1/sessions/<id>/questions/` | List Q&A questions for a session. |
-| `POST` | `/api/v1/sessions/<id>/questions/` | Submit a Q&A question (public write). |
+| GET | `/api/v1/sessions/<id>/questions/` | List Q&A questions for a session. |
+| POST | `/api/v1/sessions/<id>/questions/` | Submit a Q&A question (public write). |
+
+### JWT Authentication REST API — Public Endpoints
+
+These endpoints manage user registration and token-based login. All return `application/json` and do not require authentication headers.
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/v1/auth/register/` | Register a new user account. |
+| `POST` | `/api/v1/auth/login/` | Log in with email and password (returns access and refresh tokens). |
+| `POST` | `/api/v1/auth/refresh/` | Refresh the active JWT access token using a refresh token. |
+| `POST` | `/api/v1/auth/logout/` | Log out and blacklist the current refresh token. |
 
 ### Admin REST API — Protected Endpoints
 
@@ -149,4 +160,25 @@ To keep the repository clean and structured:
 1.  **`main` Branch**: Contains stable, production-ready core project structures.
 2.  **`dev` Branch**: The main integration branch for core configuration changes.
 3.  **Feature Branches (`feature/your-feature`)**: All active development (new views, templates, or schemas) must be done on branches off `dev`.
+
+#### Step-by-Step Feature Workflow
+
+1.  **Checkout to `dev` and pull latest changes:**
+    ```bash
+    git checkout dev
+    git pull
+    ```
+
+2.  **Create your feature branch:**
+    ```bash
+    git checkout -b feature/event-creation
+    ```
+
+3.  **Implement your changes and commit locally:**
+    ```bash
+    git add .
+    git commit -m "feat: add event model and migration"
+    ```
+
+4.  **Merge changes back to `dev` via Pull Request or manual merge** (after verification).
 

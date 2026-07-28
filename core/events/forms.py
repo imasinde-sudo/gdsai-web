@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Speaker, Event, Session, APIKey
+from .models import Speaker, Event, Session, APIKey, Ticket, Attendee
 
 
 class EventForm(forms.ModelForm):
@@ -86,3 +86,43 @@ class AdminProfileForm(forms.ModelForm):
             "last_name": forms.TextInput(attrs={"placeholder": "Last Name", "class": "form-input"}),
             "email": forms.EmailInput(attrs={"placeholder": "e.g. admin@eventhub.com", "class": "form-input"}),
         }
+
+
+class TicketForm(forms.ModelForm):
+    class Meta:
+        model = Ticket
+        fields = ["name", "price"]
+        widgets = {
+            "name": forms.TextInput(attrs={"placeholder": "e.g. General Admission", "class": "form-input"}),
+            "price": forms.NumberInput(attrs={"placeholder": "e.g. 29.99", "class": "form-input", "step": "0.01"}),
+        }
+
+
+class AttendeeForm(forms.ModelForm):
+    class Meta:
+        model = Attendee
+        fields = ["name", "email", "phone_number", "is_registered", "payment_status", "paid_at", "ticket", "event"]
+        widgets = {
+            "name": forms.TextInput(attrs={"placeholder": "e.g. Jane Doe", "class": "form-input"}),
+            "email": forms.EmailInput(attrs={"placeholder": "e.g. jane@example.com", "class": "form-input"}),
+            "phone_number": forms.TextInput(attrs={"placeholder": "e.g. +1234567890", "class": "form-input"}),
+            "is_registered": forms.CheckboxInput(attrs={"class": "form-checkbox"}),
+            "payment_status": forms.Select(attrs={"class": "form-select"}),
+            "paid_at": forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-input", "required": False}),
+            "ticket": forms.Select(attrs={"class": "form-select"}),
+            "event": forms.Select(attrs={"class": "form-select"}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        payment_status = cleaned_data.get("payment_status")
+        paid_at = cleaned_data.get("paid_at")
+        
+        # If paid and no timestamp provided, auto-set to now
+        from django.utils import timezone
+        if payment_status == "PAID" and not paid_at:
+            cleaned_data["paid_at"] = timezone.now()
+        elif payment_status == "UNPAID":
+            cleaned_data["paid_at"] = None
+            
+        return cleaned_data

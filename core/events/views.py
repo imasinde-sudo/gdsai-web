@@ -3,8 +3,8 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import user_passes_test
-from .models import Event, Speaker, Session, APIKey, Question, Attendee
-from .forms import EventForm, SpeakerForm, SessionForm, APIKeyForm, AdminProfileForm
+from .models import Event, Speaker, Session, APIKey, Question, Attendee, Ticket
+from .forms import EventForm, SpeakerForm, SessionForm, APIKeyForm, AdminProfileForm, TicketForm, AttendeeForm
 import sys
 import django
 
@@ -48,6 +48,8 @@ def admin_dashboard(request):
     sessions = Session.objects.all().order_by("start_time")
     apikeys = APIKey.objects.all().order_by("-created_at")
     questions = Question.objects.all().order_by("-created_at")
+    tickets = Ticket.objects.all().order_by("name")
+    attendees = Attendee.objects.all().order_by("name")
     
     active_tab = request.GET.get("tab", "events")
     
@@ -57,11 +59,15 @@ def admin_dashboard(request):
         "sessions": sessions,
         "apikeys": apikeys,
         "questions": questions,
+        "tickets": tickets,
+        "attendees": attendees,
         "total_events": events.count(),
         "total_speakers": speakers.count(),
         "total_sessions": sessions.count(),
         "total_apikeys": apikeys.count(),
         "total_questions": questions.count(),
+        "total_tickets": tickets.count(),
+        "total_attendees": attendees.count(),
         "active_tab": active_tab,
     }
     return render(request, "events/admin_dashboard.html", context)
@@ -239,4 +245,74 @@ def profile_view(request):
 def logout_view(request):
     logout(request)
     return redirect("events:landing_page")
+
+
+# --- Tickets CRUD Views ---
+@user_passes_test(check_admin, login_url='events:login')
+def ticket_create(request):
+    if request.method == "POST":
+        form = TicketForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('events:admin_dashboard')}?tab=tickets")
+    else:
+        form = TicketForm()
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Create Ticket", "active_tab": "tickets"})
+
+
+@user_passes_test(check_admin, login_url='events:login')
+def ticket_edit(request, ticket_id):
+    ticket = get_object_or_404(Ticket, pk=ticket_id)
+    if request.method == "POST":
+        form = TicketForm(request.POST, instance=ticket)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('events:admin_dashboard')}?tab=tickets")
+    else:
+        form = TicketForm(instance=ticket)
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Edit Ticket", "active_tab": "tickets"})
+
+
+@user_passes_test(check_admin, login_url='events:login')
+def ticket_delete(request, ticket_id):
+    ticket = get_object_or_404(Ticket, pk=ticket_id)
+    if request.method == "POST":
+        ticket.delete()
+        return redirect(f"{reverse('events:admin_dashboard')}?tab=tickets")
+    return render(request, "events/dashboard_confirm_delete.html", {"object": ticket, "title": "Delete Ticket", "cancel_url": f"{reverse('events:admin_dashboard')}?tab=tickets"})
+
+
+# --- Attendees CRUD Views ---
+@user_passes_test(check_admin, login_url='events:login')
+def attendee_create(request):
+    if request.method == "POST":
+        form = AttendeeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('events:admin_dashboard')}?tab=attendees")
+    else:
+        form = AttendeeForm()
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Create Attendee", "active_tab": "attendees"})
+
+
+@user_passes_test(check_admin, login_url='events:login')
+def attendee_edit(request, attendee_id):
+    attendee = get_object_or_404(Attendee, pk=attendee_id)
+    if request.method == "POST":
+        form = AttendeeForm(request.POST, instance=attendee)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('events:admin_dashboard')}?tab=attendees")
+    else:
+        form = AttendeeForm(instance=attendee)
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Edit Attendee", "active_tab": "attendees"})
+
+
+@user_passes_test(check_admin, login_url='events:login')
+def attendee_delete(request, attendee_id):
+    attendee = get_object_or_404(Attendee, pk=attendee_id)
+    if request.method == "POST":
+        attendee.delete()
+        return redirect(f"{reverse('events:admin_dashboard')}?tab=attendees")
+    return render(request, "events/dashboard_confirm_delete.html", {"object": attendee, "title": "Delete Attendee", "cancel_url": f"{reverse('events:admin_dashboard')}?tab=attendees"})
 

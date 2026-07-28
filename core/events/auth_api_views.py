@@ -53,7 +53,6 @@ class RegisterAPIView(generics.CreateAPIView):
         }, status=status.HTTP_201_CREATED)
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = 'email'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

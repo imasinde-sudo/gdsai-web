@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: gdsai-web
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn --chdir core core.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ".onrender.com,localhost,127.0.0.1"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gdsai-db
+          property: connectionString
+
+databases:
+  - name: gdsai-db
+    databaseName: gdsai_db
+    user: gdsai_user

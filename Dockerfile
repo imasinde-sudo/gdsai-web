@@ -18,5 +18,6 @@ COPY . /app/
 # Expose port
 EXPOSE 8000
 
-# Run the application
-CMD ["python", "core/manage.py", "runserver", "0.0.0.0:8000"]
+# Run the application using Gunicorn
+CMD ["gunicorn", "--chdir", "core", "core.wsgi:application", "--bind", "0.0.0.0:8000"]
+

@@ -37,6 +37,7 @@ class Session(models.Model):
     location = models.CharField(max_length=255, blank=True, help_text="Specific room or venue section")
     speakers = models.ManyToManyField(Speaker, related_name="sessions", blank=True)
     presentation_slides = models.FileField(upload_to="slides/", blank=True, null=True)
+    kahoot_url = models.URLField(max_length=500, blank=True, null=True, help_text="Link to external Kahoot or Slido quiz")
 
     class Meta:
         ordering = ["start_time"]

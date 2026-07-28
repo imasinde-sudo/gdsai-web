@@ -62,7 +62,7 @@ class SessionListSerializer(serializers.ModelSerializer):
         model = Session
         fields = [
             "id", "event", "event_title", "title",
-            "start_time", "end_time", "location", "speakers",
+            "start_time", "end_time", "location", "speakers", "kahoot_url",
         ]
 
 
@@ -75,7 +75,7 @@ class SessionSerializer(serializers.ModelSerializer):
         model = Session
         fields = [
             "id", "event", "event_title", "title", "description",
-            "start_time", "end_time", "location", "speakers", "presentation_slides",
+            "start_time", "end_time", "location", "speakers", "presentation_slides", "kahoot_url",
         ]
 
 

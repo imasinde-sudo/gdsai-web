@@ -45,7 +45,7 @@ class SpeakerForm(forms.ModelForm):
 class SessionForm(forms.ModelForm):
     class Meta:
         model = Session
-        fields = ["event", "title", "description", "start_time", "end_time", "location", "speakers", "presentation_slides"]
+        fields = ["event", "title", "description", "start_time", "end_time", "location", "speakers", "presentation_slides", "kahoot_url"]
         widgets = {
             "event": forms.Select(attrs={"class": "form-select"}),
             "title": forms.TextInput(attrs={"placeholder": "e.g. Keynote Presentation", "class": "form-input"}),
@@ -55,6 +55,7 @@ class SessionForm(forms.ModelForm):
             "location": forms.TextInput(attrs={"placeholder": "e.g. Room 104", "class": "form-input"}),
             "speakers": forms.SelectMultiple(attrs={"class": "form-select-multiple"}),
             "presentation_slides": forms.ClearableFileInput(attrs={"class": "form-input-file"}),
+            "kahoot_url": forms.URLInput(attrs={"placeholder": "e.g. https://kahoot.it/challenge/...", "class": "form-input"}),
         }
 
     def clean(self):

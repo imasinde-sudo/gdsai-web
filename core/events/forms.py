@@ -91,8 +91,9 @@ class AdminProfileForm(forms.ModelForm):
 class TicketForm(forms.ModelForm):
     class Meta:
         model = Ticket
-        fields = ["name", "price"]
+        fields = ["event", "name", "price"]
         widgets = {
+            "event": forms.Select(attrs={"class": "form-select"}),
             "name": forms.TextInput(attrs={"placeholder": "e.g. General Admission", "class": "form-input"}),
             "price": forms.NumberInput(attrs={"placeholder": "e.g. 29.99", "class": "form-input", "step": "0.01"}),
         }

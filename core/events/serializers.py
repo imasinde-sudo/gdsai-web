@@ -86,7 +86,7 @@ class SessionSerializer(serializers.ModelSerializer):
 class AttendeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attendee
-        fields = ["id", "name", "email", "event", "registered_at"]
+        fields = ["id", "name", "email", "phone_number", "is_registered", "payment_status", "paid_at", "receipt_no", "ticket", "event", "registered_at"]
 
 
 class QuestionSerializer(serializers.ModelSerializer):

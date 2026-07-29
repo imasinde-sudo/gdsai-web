@@ -48,6 +48,7 @@ class Session(models.Model):
 class Ticket(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="tickets", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -65,6 +66,7 @@ class Attendee(models.Model):
         default='UNPAID'
     )
     paid_at = models.DateTimeField(null=True, blank=True)
+    receipt_no = models.CharField(max_length=100, blank=True, null=True)
     ticket = models.ForeignKey(Ticket, on_delete=models.SET_NULL, null=True, blank=True, related_name="attendees")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees", null=True, blank=True)
     registered_at = models.DateTimeField(auto_now_add=True)

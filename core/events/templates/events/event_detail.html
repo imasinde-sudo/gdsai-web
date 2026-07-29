@@ -91,14 +91,23 @@
               </div>
             {% endif %}
 
-            {% if session.presentation_slides %}
-              <div style="margin-left: auto;">
+            <div class="session-actions" style="margin-left: auto; display: inline-flex; gap: 0.5rem; align-items: center;">
+              {% if session.presentation_slides %}
                 <a href="{{ session.presentation_slides.url }}" class="speaker-avatar-link" download style="color: var(--accent-cyan); border-color: var(--accent-cyan); display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 0.85rem; padding: 0.3rem 0.8rem;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                   Download Slides
                 </a>
-              </div>
-            {% endif %}
+              {% endif %}
+
+              {% if session.kahoot_url %}
+                <a href="{{ session.kahoot_url }}" target="_blank" class="speaker-avatar-link" style="color: #fff; background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan)); border: none; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 0.85rem; padding: 0.3rem 0.8rem; border-radius: 6px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  Join Live Quiz
+                </a>
+              {% endif %}
+            </div>
           </div>
 
           <!-- Session Q&A Widget -->

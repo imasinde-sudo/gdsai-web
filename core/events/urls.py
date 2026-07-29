@@ -38,6 +38,16 @@ urlpatterns = [
     # Questions Admin Moderation
     path("dashboard/questions/<int:question_id>/delete/", views.question_delete, name="question_delete"),
 
+    # Ticket CRUD
+    path("dashboard/tickets/add/", views.ticket_create, name="ticket_create"),
+    path("dashboard/tickets/<int:ticket_id>/edit/", views.ticket_edit, name="ticket_edit"),
+    path("dashboard/tickets/<int:ticket_id>/delete/", views.ticket_delete, name="ticket_delete"),
+
+    # Attendee CRUD
+    path("dashboard/attendees/add/", views.attendee_create, name="attendee_create"),
+    path("dashboard/attendees/<int:attendee_id>/edit/", views.attendee_edit, name="attendee_edit"),
+    path("dashboard/attendees/<int:attendee_id>/delete/", views.attendee_delete, name="attendee_delete"),
+
     # Admin Profile
     path("dashboard/profile/", views.profile_view, name="profile_view"),
 

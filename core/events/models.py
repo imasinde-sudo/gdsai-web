@@ -37,6 +37,7 @@ class Session(models.Model):
     location = models.CharField(max_length=255, blank=True, help_text="Specific room or venue section")
     speakers = models.ManyToManyField(Speaker, related_name="sessions", blank=True)
     presentation_slides = models.FileField(upload_to="slides/", blank=True, null=True)
+    kahoot_url = models.URLField(max_length=500, blank=True, null=True, help_text="Link to external Kahoot or Slido quiz")
 
     class Meta:
         ordering = ["start_time"]
@@ -44,15 +45,34 @@ class Session(models.Model):
     def __str__(self):
         return f"{self.title} ({self.event.title})"
 
+class Ticket(models.Model):
+    name = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="tickets", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} (${self.price})"
+
 
 class Attendee(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField()
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees")
+    phone_number = models.CharField(max_length=20, blank=True)
+    is_registered = models.BooleanField(default=False)
+    payment_status = models.CharField(
+        max_length=10,
+        choices=[('PAID', 'Paid'), ('UNPAID', 'Unpaid')],
+        default='UNPAID'
+    )
+    paid_at = models.DateTimeField(null=True, blank=True)
+    receipt_no = models.CharField(max_length=100, blank=True, null=True)
+    ticket = models.ForeignKey(Ticket, on_delete=models.SET_NULL, null=True, blank=True, related_name="attendees")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees", null=True, blank=True)
     registered_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.name} — {self.event.title}"
+        return f"{self.name} — {self.email}"
 
 
 class APIKey(models.Model):

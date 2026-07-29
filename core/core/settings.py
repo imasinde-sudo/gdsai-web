@@ -32,7 +32,7 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
 ALLOWED_HOSTS = [
     h.strip()
-    for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,.onrender.com").split(",")
+    for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,.onrender.com,.herokuapp.com").split(",")
     if h.strip()
 ]
 
@@ -169,6 +169,10 @@ STORAGES = {
     },
 }
 
+import sys
+if "test" in sys.argv:
+    STORAGES["staticfiles"]["BACKEND"] = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
@@ -237,3 +241,16 @@ AUTHENTICATION_BACKENDS = [
     "authentication.backends.EmailAuthBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
+
+# ---------- Production SSL / Security Hardening (Render) ----------
+# RENDER env var is automatically set by Render's platform
+if os.environ.get("RENDER"):
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True

@@ -3,7 +3,7 @@ services:
     name: gdsai-web
     env: python
     plan: free
-    buildCommand: "./build.sh"
+    buildCommand: "bash ./build.sh"
     startCommand: "gunicorn --chdir core core.wsgi:application"
     envVars:
       - key: PYTHON_VERSION

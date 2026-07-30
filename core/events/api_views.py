@@ -101,7 +101,7 @@ class SessionQuestionAPIView(APIView):
 
 def api_schema(request):
     generator = SchemaGenerator(
-        title="EventHub Platform API",
+        title="@iLabAfrica Centre Events API",
         description="API endpoints for managing events, sessions, speakers, and Q&A.",
     )
     schema = generator.get_schema(request=None)

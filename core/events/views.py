@@ -3,10 +3,49 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import user_passes_test
+from django.http import JsonResponse
 from .models import Event, Speaker, Session, APIKey, Question, Attendee, Ticket
 from .forms import EventForm, SpeakerForm, SessionForm, APIKeyForm, AdminProfileForm, TicketForm, AttendeeForm
 import sys
 import django
+
+
+# TEMPORARY DIAGNOSTIC VIEW — Remove after debugging
+def auth_diagnostic(request):
+    """Unauthenticated diagnostic endpoint to inspect auth state on Render."""
+    from django.contrib.auth import get_user_model
+    from django.conf import settings
+    User = get_user_model()
+
+    diag = {
+        'backends': settings.AUTHENTICATION_BACKENDS,
+        'total_users': User.objects.count(),
+        'superusers': list(User.objects.filter(is_superuser=True).values('id', 'username', 'email', 'is_active', 'is_staff', 'is_superuser')),
+        'admin_user_exists': User.objects.filter(username='admin').exists(),
+    }
+
+    # Check if admin user can authenticate
+    admin_user = User.objects.filter(username='admin').first()
+    if admin_user:
+        diag['admin_user'] = {
+            'id': admin_user.id,
+            'username': admin_user.username,
+            'email': admin_user.email,
+            'is_active': admin_user.is_active,
+            'is_staff': admin_user.is_staff,
+            'is_superuser': admin_user.is_superuser,
+            'has_usable_password': admin_user.has_usable_password(),
+            'check_password_admin': admin_user.check_password('admin'),
+        }
+        # Test authenticate()
+        auth_result = authenticate(request=request, username='admin', password='admin')
+        diag['authenticate_username_admin'] = str(auth_result)
+        auth_result2 = authenticate(request=request, username='admin@gdsai.com', password='admin')
+        diag['authenticate_email_admin'] = str(auth_result2)
+    else:
+        diag['admin_user'] = 'NOT FOUND'
+
+    return JsonResponse(diag, json_dumps_params={'indent': 2})
 
 def check_admin(user):
     return user.is_authenticated and user.is_staff
@@ -184,16 +223,18 @@ def login_view(request):
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
+            user = form.get_user()
             if user is not None:
                 login(request, user)
-                next_url = request.GET.get('next', reverse('events:admin_dashboard'))
+                next_url = request.GET.get('next') or request.POST.get('next') or reverse('events:admin_dashboard')
                 return redirect(next_url)
     else:
         form = AuthenticationForm()
     return render(request, "events/login.html", {"form": form})
+
+
+
+
 
 
 # --- API Key Management Views ---

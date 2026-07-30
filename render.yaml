@@ -2,8 +2,9 @@ services:
   - type: web
     name: gdsai-web
     env: python
-    buildCommand: "./build.sh"
-    startCommand: "gunicorn --chdir core core.wsgi:application"
+    plan: free
+    buildCommand: "bash ./build.sh"
+    startCommand: "python core/manage.py migrate && python core/manage.py setup_auth && gunicorn --chdir core core.wsgi:application"
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
@@ -20,5 +21,6 @@ services:
 
 databases:
   - name: gdsai-db
+    plan: free
     databaseName: gdsai_db
     user: gdsai_user

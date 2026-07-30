@@ -11,10 +11,11 @@ python core/manage.py migrate
 python core/manage.py shell -c "
 from django.contrib.auth import get_user_model;
 User = get_user_model();
-user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@gdsai.com', 'is_staff': True, 'is_superuser': True});
+user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@gdsai.com', 'is_staff': True, 'is_superuser': True, 'is_active': True});
 user.set_password('admin');
 user.is_staff = True;
 user.is_superuser = True;
+user.is_active = True;
 user.save();
 print('Superuser admin ' + ('created' if created else 'password reset'))
 "

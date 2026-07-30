@@ -1,23 +1,20 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
+from django.db.models import Q
 
 User = get_user_model()
 
 class EmailAuthBackend(ModelBackend):
     """
-    Custom authentication backend to allow users to log in using their email address.
+    Custom authentication backend to allow users to log in using either their email address or username.
     """
     def authenticate(self, request, username=None, password=None, **kwargs):
-        # We can accept either username or email in the 'username' parameter
-        email = kwargs.get('email', username)
-        if not email:
+        lookup = kwargs.get('email', username)
+        if not lookup:
             return None
         
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return None
-
-        if user.check_password(password) and self.user_can_authenticate(user):
+        user = User.objects.filter(Q(email__iexact=lookup) | Q(username__iexact=lookup)).first()
+        if user and user.check_password(password) and self.user_can_authenticate(user):
             return user
         return None
+

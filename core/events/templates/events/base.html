@@ -9,6 +9,7 @@
   <title>{% block title %}@iLabAfrica Centre Events{% endblock %}</title>
 
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
 
@@ -47,7 +48,7 @@
         </div>
       </div>
       <div class="footer-logo-slot">
-        {% include "events/partials/brand_logo.html" with reverse=True %}
+        {% include "events/partials/brand_logo.html" with variant="reverse" %}
       </div>
     </div>
   </footer>

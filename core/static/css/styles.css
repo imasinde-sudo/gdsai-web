@@ -115,6 +115,11 @@
   --link: var(--uni-blue);
   --link-hover: var(--brand-orange);
 
+  /* Masala Orange reaches only 3:1 on white, which is enough for display type
+     but not for small copy. This darkened gradation of the same hue reaches
+     4.8:1 and is used wherever orange carries text below ~24px. */
+  --orange-text: #C24F00;
+
   --border: #DDDDD8;
   --border-strong: #BFBFB8;
   --border-inverse: rgba(255, 255, 255, 0.22);
@@ -301,6 +306,7 @@ img {
 }
 
 .brand-lockup__tagline {
+  display: block;
   font-family: var(--font-body);
   font-size: 0.7rem;
   font-weight: 600;
@@ -548,10 +554,11 @@ img {
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--brand-orange);
+  color: var(--orange-text);
   margin-bottom: 0.75rem;
 }
 
+/* On Strathmore Black the pure brand orange already clears 6.8:1. */
 .eyebrow--reverse {
   color: var(--brand-orange);
 }
@@ -600,10 +607,11 @@ img {
 }
 
 .hero-panel {
+  --hero-pad-x: 3.5rem;
   background: var(--surface-inverse);
   color: var(--text-on-dark);
   border-radius: var(--radius-lg);
-  padding: 3rem 3.5rem 0;
+  padding: 3rem var(--hero-pad-x) 0;
   overflow: hidden;
 }
 
@@ -642,10 +650,12 @@ img {
   flex-wrap: wrap;
 }
 
-/* The image band closing the banner, per the handbook's layout order. */
+/* The image band closing the banner, per the handbook's layout order. Negative
+   inline margins cancel the panel padding so the band runs edge to edge. */
 .hero-image-band {
   display: block;
-  width: 100%;
+  margin-left: calc(-1 * var(--hero-pad-x));
+  margin-right: calc(-1 * var(--hero-pad-x));
   height: 10px;
   background: linear-gradient(
     90deg,
@@ -880,7 +890,7 @@ img {
 .session-time {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--brand-orange);
+  color: var(--orange-text);
 }
 
 .session-time--end {
@@ -1073,7 +1083,7 @@ img {
 }
 
 .speaker-profile-title {
-  color: var(--brand-orange);
+  color: var(--orange-text);
   font-size: 0.95rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
@@ -1204,7 +1214,7 @@ img {
 
 .capability-icon--orange {
   background: var(--orange-12);
-  color: #C24F00;
+  color: var(--orange-text);
 }
 
 .capability-icon--blue {
@@ -1323,7 +1333,6 @@ img {
 }
 
 .sidebar-brand-wrapper {
-  display: block;
   margin-bottom: 2.5rem;
   text-decoration: none;
 }
@@ -1619,7 +1628,7 @@ img {
 }
 
 .btn-action-icon.edit-btn:hover {
-  color: #C24F00;
+  color: var(--orange-text);
   border-color: var(--orange-30);
   background: var(--orange-12);
 }
@@ -1649,7 +1658,7 @@ img {
 }
 
 .badge--orange {
-  color: #C24F00;
+  color: var(--orange-text);
   background: var(--orange-12);
   border-color: var(--orange-30);
 }
@@ -1753,6 +1762,14 @@ img {
 .form-input-file {
   color: var(--text-secondary);
   font-size: 0.9rem;
+}
+
+.form-checkbox {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--brand-orange);
+  cursor: pointer;
+  align-self: flex-start;
 }
 
 .form-help {
@@ -1893,7 +1910,8 @@ img {
   }
 
   .hero-panel {
-    padding: 2rem 1.5rem 0;
+    --hero-pad-x: 1.5rem;
+    padding: 2rem var(--hero-pad-x) 0;
   }
 
   .hero-title {

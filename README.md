@@ -1,8 +1,13 @@
-# Events Management System
+# @iLabAfrica Centre Events Management System
 
-A robust, glassmorphic events management system built with Python, Django, PostgreSQL, and Docker. 
+A robust events management system built with Python, Django, PostgreSQL, and Docker.
 
 The system features dynamic event scheduling, interactive timetable timelines, detailed speaker profile management, and a versioned public REST API designed for mobile app integration.
+
+The interface follows the `@iLabAfrica Centre Brand Identity Guidelines`
+(`docs/@iLabAfrica-Brandbook.pdf`). Before changing any colour, typeface or the
+logo, read [`docs/BRAND.md`](docs/BRAND.md), which records how the handbook maps
+onto the design tokens in `core/static/css/styles.css`.
 
 ---
 

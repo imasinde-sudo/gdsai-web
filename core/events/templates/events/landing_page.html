@@ -98,8 +98,9 @@ The reverse lockup is used because the banner runs on Strathmore Black.
             </div>
           </div>
 
-          <div style="margin-top: 1.5rem;">
+          <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
             <a href="{% url 'events:event_detail' event.id %}" class="btn btn--outline btn--block">View schedule</a>
+            <a href="{% url 'events:event_register' event.id %}" class="btn btn--primary btn--block">Register</a>
           </div>
         </div>
       </div>

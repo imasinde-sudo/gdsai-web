@@ -350,13 +350,13 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th>Registered Email</th>
-            <th>Phone Number</th>
-            <th>Ticket Type</th>
+            <th>Email</th>
+            <th>Organisation</th>
+            <th>Ticket</th>
+            <th>Badge ID</th>
             <th>Registered?</th>
-            <th>Paid Status</th>
-            <th>Paid At</th>
-            <th>Receipt No</th>
+            <th>Email sent</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -364,8 +364,9 @@
             <tr>
               <td class="cell-primary">{{ attendee.name }}</td>
               <td>{{ attendee.email }}</td>
-              <td>{{ attendee.phone_number|default:"-" }}</td>
+              <td>{{ attendee.organization|default:"-" }}</td>
               <td>{{ attendee.ticket.name|default:"-" }}</td>
+              <td class="cell-code">{{ attendee.badge_code|default:"-" }}</td>
               <td>
                 {% if attendee.is_registered %}
                   <span class="badge badge--blue">Yes</span>
@@ -374,18 +375,34 @@
                 {% endif %}
               </td>
               <td>
-                {% if attendee.payment_status == "PAID" %}
-                  <span class="badge badge--orange">Paid</span>
+                {% if attendee.email_sent_at %}
+                  <span class="badge badge--orange">Sent</span>
                 {% else %}
-                  <span class="badge badge--danger">Unpaid</span>
+                  <span class="badge badge--neutral">—</span>
                 {% endif %}
               </td>
-              <td>{{ attendee.paid_at|date:"Y-m-d H:i"|default:"N/A" }}</td>
-              <td class="cell-code">{{ attendee.receipt_no|default:"-" }}</td>
+              <td>
+                <div class="actions-cell">
+                  {% if attendee.badge_code %}
+                    <a href="{% url 'events:badge_image' attendee.badge_code %}" class="btn-action-icon edit-btn" title="View badge" aria-label="View badge" target="_blank" rel="noopener">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="12" cy="12" r="3"></circle></svg>
+                    </a>
+                    <a href="{% url 'events:badge_verify' attendee.badge_code %}" class="btn-action-icon" title="Verify" aria-label="Verify badge" target="_blank" rel="noopener">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </a>
+                  {% endif %}
+                  <a href="{% url 'events:attendee_edit' attendee.id %}" class="btn-action-icon edit-btn" title="Edit Attendee" aria-label="Edit attendee">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                  </a>
+                  <a href="{% url 'events:attendee_delete' attendee.id %}" class="btn-action-icon delete-btn" title="Delete Attendee" aria-label="Delete attendee">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                  </a>
+                </div>
+              </td>
             </tr>
           {% empty %}
             <tr>
-              <td colspan="8" class="cell-empty">No event attendees registered. Register an attendee profile to link them to tickets.</td>
+              <td colspan="8" class="cell-empty">No attendees yet. Share an event’s registration link so people can sign up.</td>
             </tr>
           {% endfor %}
         </tbody>

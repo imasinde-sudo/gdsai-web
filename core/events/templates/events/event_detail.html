@@ -43,6 +43,15 @@
         <span><strong>Venue:</strong> {{ event.location }}</span>
       </div>
     </div>
+
+    <div class="event-register-cta">
+      {% if can_register %}
+        <a href="{% url 'events:event_register' event.id %}" class="btn btn--primary btn--lg">Register for this event</a>
+        <p class="form-help" style="margin: 0.75rem 0 0;">Select a ticket, enter your details, and receive your QR badge by email. No payment required yet.</p>
+      {% else %}
+        <p class="text-muted" style="margin: 0;">Registration opens once tickets are published for this event.</p>
+      {% endif %}
+    </div>
   </div>
 </header>
 

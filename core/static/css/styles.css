@@ -2032,3 +2032,125 @@ img {
     margin-left: 0;
   }
 }
+
+/* --------------------------------------------------------------------------
+   28. Event registration & badges
+   -------------------------------------------------------------------------- */
+.event-register-cta {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.register-card {
+  max-width: 40rem;
+}
+
+.register-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.register-legend {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin-bottom: 0.85rem;
+}
+
+.ticket-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ticket-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  background: var(--surface);
+}
+
+.ticket-option:hover,
+.ticket-option:has(input:checked) {
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 3px var(--orange-12);
+}
+
+.ticket-radio {
+  margin-top: 0.2rem;
+  accent-color: var(--brand-orange);
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.ticket-option__body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.ticket-option__name {
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.ticket-option__price {
+  font-weight: 700;
+  color: var(--orange-text);
+  white-space: nowrap;
+}
+
+.badge-preview {
+  display: flex;
+  justify-content: center;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.badge-preview__img {
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+}
+
+.verify-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem 1.5rem;
+}
+
+.verify-grid dt {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.verify-grid dd {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .verify-grid {
+    grid-template-columns: 1fr;
+  }
+}

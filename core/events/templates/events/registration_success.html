@@ -1,0 +1,50 @@
+{% extends "events/base.html" %}
+
+{% block title %}You're registered — {{ event.title }}{% endblock %}
+
+{% block content %}
+<header class="text-center" style="margin-bottom: 2rem;">
+  <span class="brand-rule brand-rule--center"></span>
+  <span class="eyebrow">Registration complete</span>
+  <h1 class="page-title">You're on the list, {{ attendee.name }}</h1>
+  <p class="section-subtitle" style="margin-left: auto; margin-right: auto;">
+    {{ event.title }}
+    {% if attendee.ticket %} · {{ attendee.ticket.name }}{% endif %}
+  </p>
+</header>
+
+<div class="glass-panel" style="padding: 2rem; max-width: 52rem; margin: 0 auto 2rem;">
+  {% if email_sent %}
+    <div class="alert alert--info">
+      Your badge was emailed to <strong>{{ attendee.email }}</strong>. Check your inbox (and spam folder).
+    </div>
+  {% elif email_sent is False %}
+    <div class="alert alert--danger">
+      We could not send the badge email just now. Download your badge below — organisers can resend later.
+    </div>
+  {% else %}
+    <div class="alert alert--info">
+      If email is configured, your badge was sent to <strong>{{ attendee.email }}</strong>.
+      You can also download it below.
+    </div>
+  {% endif %}
+
+  <div class="badge-preview">
+    <img
+      src="{% url 'events:badge_image' attendee.badge_code %}"
+      alt="Event badge for {{ attendee.name }}"
+      class="badge-preview__img"
+    >
+  </div>
+
+  <div class="form-actions" style="justify-content: center; margin-top: 1.75rem;">
+    <a href="{% url 'events:badge_download' attendee.badge_code %}" class="btn btn--primary">Download badge</a>
+    <a href="{% url 'events:badge_verify' attendee.badge_code %}" class="btn btn--outline">Verify badge</a>
+    <a href="{% url 'events:event_detail' event.id %}" class="btn btn--outline">View schedule</a>
+  </div>
+
+  <p class="text-center text-muted" style="margin-top: 1.5rem; font-size: 0.85rem;">
+    Badge ID: <strong style="color: var(--orange-text);">{{ attendee.badge_code }}</strong>
+  </p>
+</div>
+{% endblock %}

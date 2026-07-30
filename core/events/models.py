@@ -1,5 +1,7 @@
 from django.db import models
 import secrets
+import uuid
+
 
 class Speaker(models.Model):
     name = models.CharField(max_length=255)
@@ -59,6 +61,7 @@ class Attendee(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField()
     phone_number = models.CharField(max_length=20, blank=True)
+    organization = models.CharField(max_length=255, blank=True)
     is_registered = models.BooleanField(default=False)
     payment_status = models.CharField(
         max_length=10,
@@ -67,9 +70,27 @@ class Attendee(models.Model):
     )
     paid_at = models.DateTimeField(null=True, blank=True)
     receipt_no = models.CharField(max_length=100, blank=True, null=True)
+    badge_code = models.CharField(max_length=32, unique=True, blank=True, editable=False)
+    badge_image = models.ImageField(upload_to="badges/", blank=True, null=True)
+    email_sent_at = models.DateTimeField(null=True, blank=True)
     ticket = models.ForeignKey(Ticket, on_delete=models.SET_NULL, null=True, blank=True, related_name="attendees")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees", null=True, blank=True)
     registered_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["event", "email"],
+                name="unique_attendee_email_per_event",
+            ),
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.badge_code:
+            self.badge_code = uuid.uuid4().hex[:16].upper()
+        if not self.receipt_no and self.is_registered:
+            self.receipt_no = f"ILAB-{self.badge_code}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name} — {self.email}"

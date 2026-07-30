@@ -102,11 +102,12 @@ class TicketForm(forms.ModelForm):
 class AttendeeForm(forms.ModelForm):
     class Meta:
         model = Attendee
-        fields = ["name", "email", "phone_number", "is_registered", "payment_status", "paid_at", "ticket", "event"]
+        fields = ["name", "email", "phone_number", "organization", "is_registered", "payment_status", "paid_at", "ticket", "event"]
         widgets = {
             "name": forms.TextInput(attrs={"placeholder": "e.g. Jane Doe", "class": "form-input"}),
             "email": forms.EmailInput(attrs={"placeholder": "e.g. jane@example.com", "class": "form-input"}),
             "phone_number": forms.TextInput(attrs={"placeholder": "e.g. +1234567890", "class": "form-input"}),
+            "organization": forms.TextInput(attrs={"placeholder": "e.g. Strathmore University", "class": "form-input"}),
             "is_registered": forms.CheckboxInput(attrs={"class": "form-checkbox"}),
             "payment_status": forms.Select(attrs={"class": "form-select"}),
             "paid_at": forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-input", "required": False}),
@@ -127,3 +128,53 @@ class AttendeeForm(forms.ModelForm):
             cleaned_data["paid_at"] = None
             
         return cleaned_data
+
+
+class EventRegistrationForm(forms.Form):
+    """Public self-service registration — no payment step."""
+
+    name = forms.CharField(
+        max_length=255,
+        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "Full name", "autocomplete": "name"}),
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={"class": "form-input", "placeholder": "you@example.com", "autocomplete": "email"}),
+    )
+    phone_number = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "+254 …", "autocomplete": "tel"}),
+    )
+    organization = forms.CharField(
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-input", "placeholder": "Organisation (optional)"}),
+    )
+    ticket = forms.ModelChoiceField(
+        queryset=Ticket.objects.none(),
+        empty_label=None,
+        widget=forms.RadioSelect(attrs={"class": "ticket-radio"}),
+    )
+
+    def __init__(self, *args, event=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.event = event
+        if event is not None:
+            self.fields["ticket"].queryset = Ticket.objects.filter(event=event).order_by("price", "name")
+            if self.fields["ticket"].queryset.count() == 1:
+                self.fields["ticket"].initial = self.fields["ticket"].queryset.first()
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip().lower()
+        if self.event and Attendee.objects.filter(event=self.event, email__iexact=email).exists():
+            raise forms.ValidationError(
+                "This email is already registered for this event. "
+                "Check your inbox for your badge, or contact the organisers."
+            )
+        return email
+
+    def clean_ticket(self):
+        ticket = self.cleaned_data["ticket"]
+        if self.event and ticket.event_id != self.event.id:
+            raise forms.ValidationError("Please select a ticket for this event.")
+        return ticket

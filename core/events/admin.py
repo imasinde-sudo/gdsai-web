@@ -36,10 +36,10 @@ class APIKeyAdmin(admin.ModelAdmin):
 
 @admin.register(Attendee)
 class AttendeeAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "event", "registered_at")
-    search_fields = ("name", "email")
-    list_filter = ("event",)
-    readonly_fields = ("registered_at",)
+    list_display = ("name", "email", "event", "ticket", "badge_code", "is_registered", "registered_at")
+    search_fields = ("name", "email", "badge_code", "organization")
+    list_filter = ("event", "is_registered", "payment_status")
+    readonly_fields = ("badge_code", "registered_at", "email_sent_at", "badge_image")
 
 
 @admin.register(Question)

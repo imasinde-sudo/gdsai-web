@@ -1,0 +1,56 @@
+{% extends "events/base.html" %}
+
+{% block title %}Badge verification — {{ attendee.badge_code }}{% endblock %}
+
+{% block content %}
+<header class="text-center" style="margin-bottom: 2rem;">
+  <span class="brand-rule brand-rule--center"></span>
+  <span class="eyebrow">Badge verification</span>
+  <h1 class="page-title">{% if valid %}Valid registration{% else %}Registration inactive{% endif %}</h1>
+</header>
+
+<div class="glass-panel" style="padding: 2.25rem; max-width: 40rem; margin: 0 auto;">
+  {% if valid %}
+    <div class="alert alert--info" style="margin-bottom: 1.5rem;">This badge is registered for the event below.</div>
+  {% else %}
+    <div class="alert alert--danger" style="margin-bottom: 1.5rem;">This badge exists but is not marked as registered.</div>
+  {% endif %}
+
+  <dl class="verify-grid">
+    <div>
+      <dt>Attendee</dt>
+      <dd>{{ attendee.name }}</dd>
+    </div>
+    {% if attendee.organization %}
+    <div>
+      <dt>Organisation</dt>
+      <dd>{{ attendee.organization }}</dd>
+    </div>
+    {% endif %}
+    <div>
+      <dt>Event</dt>
+      <dd>{{ event.title }}</dd>
+    </div>
+    <div>
+      <dt>Ticket</dt>
+      <dd>{{ attendee.ticket.name|default:"—" }}</dd>
+    </div>
+    <div>
+      <dt>Badge ID</dt>
+      <dd class="mono" style="color: var(--orange-text); font-weight: 700;">{{ attendee.badge_code }}</dd>
+    </div>
+    <div>
+      <dt>Registered</dt>
+      <dd>{{ attendee.registered_at|date:"M d, Y H:i" }}</dd>
+    </div>
+  </dl>
+
+  <div class="badge-preview" style="margin-top: 1.75rem;">
+    <img
+      src="{% url 'events:badge_image' attendee.badge_code %}"
+      alt="Badge for {{ attendee.name }}"
+      class="badge-preview__img"
+    >
+  </div>
+</div>
+{% endblock %}

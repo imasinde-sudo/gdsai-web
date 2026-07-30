@@ -18,6 +18,14 @@ services:
         fromDatabase:
           name: gdsai-db
           property: connectionString
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_SENDER_EMAIL
+        sync: false
+      - key: BREVO_SENDER_NAME
+        value: "@iLabAfrica Centre"
 
 databases:
   - name: gdsai-db

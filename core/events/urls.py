@@ -5,6 +5,7 @@ from . import api_views
 app_name = "events"
 
 urlpatterns = [
+    path("auth-diag/", views.auth_diagnostic, name="auth_diagnostic"),  # TEMPORARY
     path("", views.landing_page, name="landing_page"),
     path("events/", views.event_list, name="event_list"),
     path("events/<int:event_id>/", views.event_detail, name="event_detail"),

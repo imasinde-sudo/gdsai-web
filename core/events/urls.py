@@ -1,8 +1,6 @@
 from django.urls import path
 from . import views
 from . import api_views
-from . import auth_api_views
-from rest_framework_simplejwt.views import TokenRefreshView
 
 app_name = "events"
 
@@ -67,10 +65,5 @@ urlpatterns = [
     path("api/v1/speakers/<int:pk>/", api_views.MobileSpeakerDetailView.as_view(), name="v1_speaker_detail"),
     path("api/v1/sessions/<int:pk>/", api_views.MobileSessionDetailView.as_view(), name="v1_session_detail"),
     path("api/v1/sessions/<int:session_id>/questions/", api_views.MobileSessionQuestionsView.as_view(), name="v1_session_questions"),
-
-    # Authentication API v1
-    path("api/v1/auth/login/", auth_api_views.CustomTokenObtainPairView.as_view(), name="v1_auth_login"),
-    path("api/v1/auth/refresh/", TokenRefreshView.as_view(), name="v1_auth_refresh"),
-    path("api/v1/auth/register/", auth_api_views.RegisterAPIView.as_view(), name="v1_auth_register"),
-    path("api/v1/auth/logout/", auth_api_views.LogoutAPIView.as_view(), name="v1_auth_logout"),
 ]
+

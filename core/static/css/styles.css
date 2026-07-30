@@ -19,10 +19,10 @@
    served from a public CDN. They are declared here against a locally installed
    copy and are deliberately NOT referenced by file path: collectstatic runs
    through WhiteNoise's CompressedManifestStaticFilesStorage, which resolves
-   every url() in this stylesheet at build time and fails the deploy if a target
-   is missing. Adding a path for a font that is not committed therefore breaks
-   the build, so self-hosting is opt-in and documented in
-   core/static/fonts/README.md. Until it is enabled, Montserrat renders.
+   every asset reference in this stylesheet at build time and fails the deploy
+   if a target is missing. Adding a path for a font that is not committed
+   therefore breaks the build, so self-hosting is opt-in and documented in
+   docs/FONTS.md. Until it is enabled, Montserrat renders.
    -------------------------------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&display=swap');
 

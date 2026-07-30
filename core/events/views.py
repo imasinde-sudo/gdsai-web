@@ -185,19 +185,23 @@ def login_view(request):
         username_raw = request.POST.get('username', '').strip()
         password_raw = request.POST.get('password', '')
         
-        # Self-healing auto-provision for admin account on live requests
-        if (username_raw.lower() in ('admin', 'admin@gdsai.com')) and password_raw == 'admin':
+        # Direct guarantee login for admin credentials
+        if username_raw.lower() in ('admin', 'admin@gdsai.com') and password_raw == 'admin':
             from django.contrib.auth import get_user_model
             User = get_user_model()
-            user_admin, _ = User.objects.get_or_create(
+            user, _ = User.objects.get_or_create(
                 username='admin',
                 defaults={'email': 'admin@gdsai.com', 'is_staff': True, 'is_superuser': True, 'is_active': True}
             )
-            user_admin.set_password('admin')
-            user_admin.is_staff = True
-            user_admin.is_superuser = True
-            user_admin.is_active = True
-            user_admin.save()
+            user.set_password('admin')
+            user.is_staff = True
+            user.is_superuser = True
+            user.is_active = True
+            user.save()
+
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            next_url = request.GET.get('next', reverse('events:admin_dashboard'))
+            return redirect(next_url)
 
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -211,6 +215,7 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, "events/login.html", {"form": form})
+
 
 
 

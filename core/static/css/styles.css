@@ -16,17 +16,19 @@
      Logo      Sansation Bold
 
    Frutiger, Gotham and Sansation are commercially licensed and cannot be
-   served from a public CDN, so they resolve through local() plus a self-host
-   path. Drop licensed files into core/static/fonts/ and they take over with
-   no code change; until then Montserrat, a handbook-approved secondary,
-   renders.
+   served from a public CDN. They are declared here against a locally installed
+   copy and are deliberately NOT referenced by file path: collectstatic runs
+   through WhiteNoise's CompressedManifestStaticFilesStorage, which resolves
+   every url() in this stylesheet at build time and fails the deploy if a target
+   is missing. Adding a path for a font that is not committed therefore breaks
+   the build, so self-hosting is opt-in and documented in
+   core/static/fonts/README.md. Until it is enabled, Montserrat renders.
    -------------------------------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&display=swap');
 
 @font-face {
   font-family: 'Frutiger LT Std';
-  src: local('Frutiger LT Std 55 Roman'), local('Frutiger LT Std'),
-       url('../fonts/FrutigerLTStd-Roman.woff2') format('woff2');
+  src: local('Frutiger LT Std 55 Roman'), local('Frutiger LT Std');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -34,7 +36,7 @@
 
 @font-face {
   font-family: 'Frutiger LT Std';
-  src: local('Frutiger LT Std 65 Bold'), url('../fonts/FrutigerLTStd-Bold.woff2') format('woff2');
+  src: local('Frutiger LT Std 65 Bold'), local('Frutiger LT Std Bold');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -42,7 +44,7 @@
 
 @font-face {
   font-family: 'Frutiger LT Std';
-  src: local('Frutiger LT Std 45 Light'), url('../fonts/FrutigerLTStd-Light.woff2') format('woff2');
+  src: local('Frutiger LT Std 45 Light'), local('Frutiger LT Std Light');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -51,7 +53,7 @@
 /* Reserved for the logo lockup only, never for body or heading copy. */
 @font-face {
   font-family: 'Sansation';
-  src: local('Sansation Bold'), url('../fonts/Sansation-Bold.woff2') format('woff2');
+  src: local('Sansation Bold');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -59,7 +61,7 @@
 
 @font-face {
   font-family: 'Sansation';
-  src: local('Sansation Bold Italic'), url('../fonts/Sansation-BoldItalic.woff2') format('woff2');
+  src: local('Sansation Bold Italic');
   font-weight: 700;
   font-style: italic;
   font-display: swap;

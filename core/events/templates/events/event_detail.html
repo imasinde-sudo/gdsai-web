@@ -1,22 +1,21 @@
 {% extends "events/base.html" %}
 
-{% block title %}{{ event.title }} - EventHub{% endblock %}
+{% block title %}{{ event.title }} - @iLabAfrica Centre Events{% endblock %}
 
 {% block content %}
-<!-- Event Header Panel -->
 <header class="event-header glass-panel">
   <div class="event-header-info">
-    <a href="{% url 'events:event_list' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent-cyan); font-weight: 500; margin-bottom: 1.5rem;">
+    <a href="{% url 'events:event_list' %}" class="back-link">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
       </svg>
       Back to all events
     </a>
-    
+
     <h1 class="event-header-title">{{ event.title }}</h1>
-    <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 2rem;">{{ event.description }}</p>
-    
+    <p class="event-header-lead">{{ event.description }}</p>
+
     <div class="event-header-meta">
       <div class="meta-item">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -47,25 +46,25 @@
   </div>
 </header>
 
-<!-- Event Schedule Timeline -->
 <section>
-  <h2 class="gradient-title" style="font-size: 1.8rem; margin-bottom: 0.5rem;">Event Schedule</h2>
-  <p style="color: var(--text-muted); margin-bottom: 2rem;">Plan your day by browsing the scheduled talks, sessions, and guest speaker panels.</p>
-  
+  <span class="brand-rule"></span>
+  <h2 class="section-title">Event schedule</h2>
+  <p class="text-muted">Plan your day by browsing the scheduled talks, sessions and guest panels.</p>
+
   <div class="schedule-container">
     {% for session in sessions %}
       <div class="session-row glass-panel">
         <div class="session-time-col">
           <div class="session-time">{{ session.start_time|date:"P" }}</div>
-          <div style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0;">to</div>
-          <div class="session-time" style="color: var(--text-muted);">{{ session.end_time|date:"P" }}</div>
-          <div class="session-date" style="margin-top: 0.5rem;">{{ session.start_time|date:"M d" }}</div>
+          <div class="session-time-sep">to</div>
+          <div class="session-time session-time--end">{{ session.end_time|date:"P" }}</div>
+          <div class="session-date">{{ session.start_time|date:"M d" }}</div>
         </div>
-        
+
         <div class="session-content-col">
           <h3 class="session-title">{{ session.title }}</h3>
           <p class="session-desc">{{ session.description }}</p>
-          
+
           <div class="session-footer">
             <div class="session-speakers-list">
               {% if session.speakers.all %}
@@ -80,9 +79,9 @@
                 {% endfor %}
               {% endif %}
             </div>
-            
+
             {% if session.location %}
-              <div class="meta-item" style="font-size: 0.9rem; color: var(--text-muted);">
+              <div class="meta-item text-muted" style="font-size: 0.9rem;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
                   <circle cx="12" cy="10" r="3"></circle>
@@ -91,48 +90,46 @@
               </div>
             {% endif %}
 
-            <div class="session-actions" style="margin-left: auto; display: inline-flex; gap: 0.5rem; align-items: center;">
+            <div class="session-actions">
               {% if session.presentation_slides %}
-                <a href="{{ session.presentation_slides.url }}" class="speaker-avatar-link" download style="color: var(--accent-cyan); border-color: var(--accent-cyan); display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 0.85rem; padding: 0.3rem 0.8rem;">
+                <a href="{{ session.presentation_slides.url }}" class="btn btn--outline" download style="font-size: 0.825rem; padding: 0.45rem 1rem;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                  Download Slides
+                  Download slides
                 </a>
               {% endif %}
 
               {% if session.kahoot_url %}
-                <a href="{{ session.kahoot_url }}" target="_blank" class="speaker-avatar-link" style="color: #fff; background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan)); border: none; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 0.85rem; padding: 0.3rem 0.8rem; border-radius: 6px;">
+                <a href="{{ session.kahoot_url }}" target="_blank" rel="noopener" class="btn btn--primary" style="font-size: 0.825rem; padding: 0.45rem 1rem;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="5 3 19 12 5 21 5 3"></polygon>
                   </svg>
-                  Join Live Quiz
+                  Join live quiz
                 </a>
               {% endif %}
             </div>
           </div>
 
-          <!-- Session Q&A Widget -->
-          <div class="session-qa-section" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05);">
-            <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+          <div class="qa-section">
+            <h4 class="qa-heading">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-              Session Q&A
+              Session Q&amp;A
             </h4>
-            
-            <!-- Questions List -->
-            <div id="qa-list-{{ session.id }}" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; max-height: 150px; overflow-y: auto; padding-right: 0.5rem;">
+
+            <div id="qa-list-{{ session.id }}" class="qa-list">
               {% for question in session.questions.all %}
-                <div style="font-size: 0.85rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 0.5rem 0.75rem; border-radius: 6px; color: var(--text-muted);">
-                  "{{ question.text }}"
-                  <span style="display: block; font-size: 0.7rem; margin-top: 0.2rem; text-align: right; color: rgba(255,255,255,0.25);">{{ question.created_at|date:"Y-m-d H:i" }}</span>
+                <div class="qa-item">
+                  &ldquo;{{ question.text }}&rdquo;
+                  <span class="qa-item__time">{{ question.created_at|date:"Y-m-d H:i" }}</span>
                 </div>
               {% empty %}
-                <p id="no-qa-{{ session.id }}" style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; margin: 0.5rem 0;">No questions asked yet. Be the first!</p>
+                <p id="no-qa-{{ session.id }}" class="qa-empty">No questions asked yet. Be the first.</p>
               {% endfor %}
             </div>
 
-            <!-- Ask Input -->
-            <div style="display: flex; gap: 0.5rem;">
-              <input type="text" id="qa-input-{{ session.id }}" class="form-input" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; background: rgba(255,255,255,0.03);" placeholder="Ask a question about this talk...">
-              <button onclick="submitQuestion({{ session.id }})" class="speaker-avatar-link" style="font-size: 0.8rem; padding: 0.4rem 1rem; flex-shrink: 0; background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan)); color: #fff; border: none; cursor: pointer;">Send</button>
+            <div class="qa-form">
+              <label class="sr-only" for="qa-input-{{ session.id }}">Ask a question about this session</label>
+              <input type="text" id="qa-input-{{ session.id }}" class="form-input" placeholder="Ask a question about this talk...">
+              <button type="button" onclick="submitQuestion({{ session.id }})" class="btn btn--secondary" style="font-size: 0.825rem; padding: 0.45rem 1.1rem;">Send</button>
             </div>
           </div>
 
@@ -140,14 +137,13 @@
       </div>
     {% empty %}
       <div class="empty-state glass-panel">
-        <h3 class="empty-state-title">No Sessions Scheduled</h3>
+        <h3 class="empty-state-title">No sessions scheduled</h3>
         <p class="empty-state-desc">There are no sessions or talks currently scheduled for this event.</p>
       </div>
     {% endfor %}
   </div>
 </section>
 
-<!-- Interactive script for submitting questions to the REST API -->
 <script>
 function submitQuestion(sessionId) {
   const input = document.getElementById(`qa-input-${sessionId}`);
@@ -168,23 +164,22 @@ function submitQuestion(sessionId) {
   })
   .then(data => {
     input.value = '';
-    
+
     const list = document.getElementById(`qa-list-${sessionId}`);
     const noQaText = document.getElementById(`no-qa-${sessionId}`);
     if (noQaText) noQaText.remove();
-    
+
     const item = document.createElement('div');
-    item.style.fontSize = '0.85rem';
-    item.style.background = 'rgba(255,255,255,0.02)';
-    item.style.border = '1px solid rgba(255,255,255,0.05)';
-    item.style.padding = '0.5rem 0.75rem';
-    item.style.borderRadius = '6px';
-    item.style.color = 'var(--text-muted)';
-    item.style.marginBottom = '0.5rem';
-    
+    item.className = 'qa-item';
+
     const dateStr = new Date(data.created_at).toISOString().replace('T', ' ').substring(0, 16);
-    item.innerHTML = `"${data.text}" <span style="display: block; font-size: 0.7rem; margin-top: 0.2rem; text-align: right; color: rgba(255,255,255,0.25);">${dateStr}</span>`;
-    
+    item.textContent = `\u201C${data.text}\u201D`;
+
+    const time = document.createElement('span');
+    time.className = 'qa-item__time';
+    time.textContent = dateStr;
+    item.appendChild(time);
+
     list.insertBefore(item, list.firstChild);
   })
   .catch(err => {

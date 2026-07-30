@@ -1,27 +1,24 @@
 {% extends "events/base.html" %}
 
-{% block title %}{{ speaker.name }} - Speaker Profile{% endblock %}
+{% block title %}{{ speaker.name }} - @iLabAfrica Centre Events{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 2rem;">
-  <a href="javascript:history.back()" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent-cyan); font-weight: 500;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="19" y1="12" x2="5" y2="12"></line>
-      <polyline points="12 19 5 12 12 5"></polyline>
-    </svg>
-    Go Back
-  </a>
-</div>
+<a href="javascript:history.back()" class="back-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"></line>
+    <polyline points="12 19 5 12 12 5"></polyline>
+  </svg>
+  Go back
+</a>
 
 <div class="speaker-container">
-  <!-- Left Side: Speaker Profile Info Card -->
   <aside class="speaker-card-panel glass-panel">
     {% if speaker.profile_picture %}
       <img class="speaker-profile-pic" src="{{ speaker.profile_picture.url }}" alt="{{ speaker.name }}">
     {% else %}
       <div class="speaker-profile-pic"></div>
     {% endif %}
-    
+
     <h1 class="speaker-profile-name">{{ speaker.name }}</h1>
     {% if speaker.title %}
       <p class="speaker-profile-title">{{ speaker.title }}</p>
@@ -29,59 +26,56 @@
     {% if speaker.organization %}
       <p class="speaker-profile-org">{{ speaker.organization }}</p>
     {% endif %}
-    
+
     {% if speaker.email %}
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; overflow-wrap: break-word;">{{ speaker.email }}</p>
+      <p class="speaker-profile-email">{{ speaker.email }}</p>
     {% endif %}
-    
+
     <div class="speaker-socials">
       {% if speaker.linkedin %}
-        <a class="social-btn" href="{{ speaker.linkedin }}" target="_blank" title="LinkedIn" aria-label="LinkedIn">In</a>
+        <a class="social-btn" href="{{ speaker.linkedin }}" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn">In</a>
       {% endif %}
       {% if speaker.twitter %}
-        <a class="social-btn" href="{{ speaker.twitter }}" target="_blank" title="Twitter / X" aria-label="Twitter">X</a>
+        <a class="social-btn" href="{{ speaker.twitter }}" target="_blank" rel="noopener" title="Twitter / X" aria-label="Twitter">X</a>
       {% endif %}
       {% if speaker.website %}
-        <a class="social-btn" href="{{ speaker.website }}" target="_blank" title="Website" aria-label="Website">W</a>
+        <a class="social-btn" href="{{ speaker.website }}" target="_blank" rel="noopener" title="Website" aria-label="Website">W</a>
       {% endif %}
     </div>
   </aside>
 
-  <!-- Right Side: Biography and Scheduled Talks -->
   <section class="speaker-info-panel">
-    <div class="glass-panel" style="padding: 2.5rem;">
+    <div class="glass-panel" style="padding: 2.25rem;">
       <h2 class="speaker-bio-title">Biography</h2>
-      <p class="speaker-bio-text">
+      <div class="speaker-bio-text">
         {% if speaker.bio %}
           {{ speaker.bio|linebreaks }}
         {% else %}
           No biography available for this speaker.
         {% endif %}
-      </p>
-    </div>
-    
-    <div class="glass-panel" style="padding: 2.5rem;">
-      <h2 class="speaker-bio-title" style="font-size: 1.5rem;">Sessions & Presentations</h2>
-      
-      <div class="schedule-container" style="gap: 1rem; margin-top: 1rem;">
-        {% for session in sessions %}
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem; border-bottom: 1px solid var(--border-glass); gap: 1rem;">
-            <div>
-              <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.25rem;">{{ session.title }}</h3>
-              <p style="font-size: 0.85rem; color: var(--text-muted);">
-                Event: <a href="{% url 'events:event_detail' session.event.id %}" style="color: var(--accent-cyan); font-weight: 500;">{{ session.event.title }}</a>
-              </p>
-            </div>
-            
-            <div style="text-align: right; min-width: 140px;">
-              <span class="session-time" style="font-size: 0.95rem;">{{ session.start_time|date:"h:i A" }}</span>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">{{ session.start_time|date:"M d, Y" }}</div>
-            </div>
-          </div>
-        {% empty %}
-          <p style="color: var(--text-muted); font-size: 0.95rem;">This speaker has no scheduled sessions.</p>
-        {% endfor %}
       </div>
+    </div>
+
+    <div class="glass-panel" style="padding: 2.25rem;">
+      <h2 class="speaker-bio-title" style="font-size: 1.4rem;">Sessions &amp; presentations</h2>
+
+      {% for session in sessions %}
+        <div class="speaker-session-row">
+          <div>
+            <h3 class="speaker-session-title">{{ session.title }}</h3>
+            <p class="speaker-session-meta">
+              Event: <a href="{% url 'events:event_detail' session.event.id %}">{{ session.event.title }}</a>
+            </p>
+          </div>
+
+          <div class="speaker-session-when">
+            <span class="session-time" style="font-size: 0.95rem;">{{ session.start_time|date:"h:i A" }}</span>
+            <div class="speaker-session-meta">{{ session.start_time|date:"M d, Y" }}</div>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-muted">This speaker has no scheduled sessions.</p>
+      {% endfor %}
     </div>
   </section>
 </div>

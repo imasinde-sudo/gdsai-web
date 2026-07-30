@@ -84,7 +84,7 @@ class AdminProfileForm(forms.ModelForm):
         widgets = {
             "first_name": forms.TextInput(attrs={"placeholder": "First Name", "class": "form-input"}),
             "last_name": forms.TextInput(attrs={"placeholder": "Last Name", "class": "form-input"}),
-            "email": forms.EmailInput(attrs={"placeholder": "e.g. admin@eventhub.com", "class": "form-input"}),
+            "email": forms.EmailInput(attrs={"placeholder": "e.g. admin@ilabafrica.strathmore.edu", "class": "form-input"}),
         }
 
 

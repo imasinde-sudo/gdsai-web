@@ -1,55 +1,63 @@
 {% extends "events/base.html" %}
 
-{% block title %}EventHub - Premium Events & Scheduling Platform{% endblock %}
+{% block title %}@iLabAfrica Centre Events{% endblock %}
 
 {% block content %}
-<!-- Premium Landing Hero Section -->
+{% comment %}
+Banner layout follows the handbook's rule for banners: the logo sits at the
+top, the text follows, and the image band closes the artwork at the bottom.
+The reverse lockup is used because the banner runs on Strathmore Black.
+{% endcomment %}
 <section class="hero-section">
-  <div class="hero-panel glass-panel">
-    <span class="hero-badge">
-      Empowering Event Management
-    </span>
-    
-    <h1 class="hero-title">
-      Connecting Minds, Creating Experiences
-    </h1>
-    
-    <p class="hero-description">
-      Discover top-tier tech conferences, specialized workshops, and expert panels. Browse schedules, meet renowned speakers, and build your customized daily itinerary.
-    </p>
-    
-    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-      <a href="{% url 'events:event_list' %}" class="speaker-avatar-link" style="padding: 0.8rem 2rem; font-size: 1rem; font-weight: 600; border-radius: 8px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); border: none; color: #fff; box-shadow: var(--glow-cyan);">
-        Explore Events
-      </a>
+  <div class="hero-panel">
+    <div class="hero-logo-row">
+      {% include "events/partials/brand_logo.html" with reverse=True size="lg" %}
     </div>
+
+    <div class="hero-body">
+      <span class="hero-badge">Research &middot; Innovation &middot; Entrepreneurship</span>
+
+      <h1 class="hero-title">Where research, innovation and enterprise meet.</h1>
+
+      <p class="hero-description">
+        Conferences, workshops and expert panels hosted by the @iLabAfrica Centre at
+        Strathmore University. Browse full schedules, meet the speakers and plan your
+        day session by session.
+      </p>
+
+      <div class="hero-actions">
+        <a href="{% url 'events:event_list' %}" class="btn btn--primary btn--lg">Explore events</a>
+        <a href="https://ilabafrica.strathmore.edu" target="_blank" rel="noopener" class="btn btn--reverse btn--lg">About the Centre</a>
+      </div>
+    </div>
+
+    <span class="hero-image-band" aria-hidden="true"></span>
   </div>
 </section>
 
-<!-- Stats Banner Section -->
 <section class="glass-panel stats-banner">
-  <div>
-    <div class="stats-value" style="color: var(--accent-cyan); text-shadow: var(--glow-cyan);">50+</div>
-    <div class="stats-label">Active Conferences</div>
+  <div class="stat-block">
+    <div class="stats-value stats-value--orange">50+</div>
+    <div class="stats-label">Active conferences</div>
   </div>
-  <div style="border-left: 1px solid var(--border-glass); border-right: 1px solid var(--border-glass);">
-    <div class="stats-value" style="color: var(--accent-purple); text-shadow: var(--glow-purple);">120+</div>
-    <div class="stats-label">Keynote Speakers</div>
+  <div class="stat-block">
+    <div class="stats-value stats-value--blue">120+</div>
+    <div class="stats-label">Keynote speakers</div>
   </div>
-  <div>
-    <div class="stats-value" style="color: #fff;">10k+</div>
-    <div class="stats-label">Active Attendees</div>
+  <div class="stat-block">
+    <div class="stats-value">10k+</div>
+    <div class="stats-label">Registered attendees</div>
   </div>
 </section>
 
-<!-- Featured Events Section -->
-<section style="margin-bottom: 6rem;">
-  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem;">
+<section class="stack-lg">
+  <div class="section-head">
     <div>
-      <h2 class="gradient-title" style="margin-bottom: 0.5rem; font-size: 2rem;">Featured Events</h2>
-      <p style="color: var(--text-muted); font-size: 1rem;">Get a head start. Check out our most anticipated upcoming events.</p>
+      <span class="brand-rule"></span>
+      <h2 class="section-title">Featured events</h2>
+      <p class="text-muted">Our most anticipated upcoming events at the Centre.</p>
     </div>
-    <a href="{% url 'events:event_list' %}" style="color: var(--accent-cyan); font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+    <a href="{% url 'events:event_list' %}" class="link-arrow">
       All events
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -66,11 +74,11 @@
         {% else %}
           <div class="event-card-banner"></div>
         {% endif %}
-        
+
         <div class="event-card-content">
           <h3 class="event-card-title">{{ event.title }}</h3>
           <p class="event-card-desc">{{ event.description }}</p>
-          
+
           <div class="event-card-meta">
             <div class="meta-item">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -89,42 +97,42 @@
               <span>{{ event.location }}</span>
             </div>
           </div>
-          
+
           <div style="margin-top: 1.5rem;">
-            <a href="{% url 'events:event_detail' event.id %}" class="speaker-avatar-link" style="width: 100%; display: flex; justify-content: center; padding: 0.6rem;">
-              View Schedule
-            </a>
+            <a href="{% url 'events:event_detail' event.id %}" class="btn btn--outline btn--block">View schedule</a>
           </div>
         </div>
       </div>
     {% empty %}
       <div class="empty-state glass-panel" style="grid-column: 1 / -1;">
-        <h3 class="empty-state-title">No Featured Events</h3>
-        <p class="empty-state-desc">We are scheduling new events. Check back soon!</p>
+        <h3 class="empty-state-title">No featured events</h3>
+        <p class="empty-state-desc">New events are being scheduled. Please check back soon.</p>
       </div>
     {% endfor %}
   </div>
 </section>
 
-<!-- Core Features Overview -->
-<section style="margin-bottom: 3rem;">
-  <h2 class="gradient-title" style="text-align: center; margin-bottom: 0.5rem; font-size: 2rem;">Platform Capabilities</h2>
-  <p style="text-align: center; color: var(--text-muted); margin-bottom: 3.5rem; font-size: 1rem;">Experience event planning optimized for developers and attendees.</p>
+<section class="stack-md">
+  <div class="text-center" style="margin-bottom: 3rem;">
+    <span class="brand-rule brand-rule--center"></span>
+    <h2 class="section-title">Platform capabilities</h2>
+    <p class="text-muted">Event planning built for organisers, speakers and attendees.</p>
+  </div>
 
   <div class="capabilities-grid">
     <div class="glass-panel capability-card">
-      <div class="capability-icon" style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2); color: var(--accent-cyan);">
+      <div class="capability-icon capability-icon--orange">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
       </div>
-      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Timetable Schedules</h3>
-      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Track sessions down to the minute. Filter items based on tracks, rooms, or topics.</p>
+      <h3 class="capability-title">Timetable schedules</h3>
+      <p class="capability-text">Track sessions down to the minute and filter by track, room or topic.</p>
     </div>
-    
+
     <div class="glass-panel capability-card">
-      <div class="capability-icon" style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); color: var(--accent-purple);">
+      <div class="capability-icon capability-icon--blue">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
           <circle cx="9" cy="7" r="4"></circle>
@@ -132,20 +140,20 @@
           <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
         </svg>
       </div>
-      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Speaker Profiles</h3>
-      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Read professional bios, contact information, social handles, and mapped speaker sessions.</p>
+      <h3 class="capability-title">Speaker profiles</h3>
+      <p class="capability-text">Professional bios, contact details, social handles and mapped sessions.</p>
     </div>
-    
+
     <div class="glass-panel capability-card">
-      <div class="capability-icon" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-glass); color: #fff;">
+      <div class="capability-icon capability-icon--black">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
           <line x1="8" y1="21" x2="16" y2="21"></line>
           <line x1="12" y1="17" x2="12" y2="21"></line>
         </svg>
       </div>
-      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Hybrid Hosting</h3>
-      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Manage virtual live stream links alongside physically mapped conference rooms.</p>
+      <h3 class="capability-title">Hybrid hosting</h3>
+      <p class="capability-text">Manage virtual live-stream links alongside physical conference rooms.</p>
     </div>
   </div>
 </section>

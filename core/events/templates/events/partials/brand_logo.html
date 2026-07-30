@@ -8,7 +8,10 @@ than retyping the wordmark, and never add a colour fill, shadow, rotation or
 non-uniform scale.
 
 Parameters:
-  reverse  pass True on dark backgrounds to get the white reverse lockup
+  variant  pass "reverse" on dark backgrounds to get the white reverse lockup
   size     "lg" or "sm" to scale the whole lockup proportionally
+
+Usage:
+  {% include "events/partials/brand_logo.html" with variant="reverse" size="lg" %}
 {% endcomment %}
-<span class="brand-logo{% if reverse %} brand-logo--reverse{% endif %}{% if size %} brand-logo--{{ size }}{% endif %}"><span class="brand-logo__name">@iLabAfrica</span><em class="brand-logo__centre">Centre</em></span>
+<span class="brand-logo{% if variant == 'reverse' %} brand-logo--reverse{% endif %}{% if size %} brand-logo--{{ size }}{% endif %}"><span class="brand-logo__name">@iLabAfrica</span><em class="brand-logo__centre">Centre</em></span>

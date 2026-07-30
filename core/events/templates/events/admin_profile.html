@@ -2,7 +2,7 @@
 
 {% block title %}Profile - @iLabAfrica Centre Events{% endblock %}
 
-{% block content %}
+{% block extra_head %}
 <style>
   .profile-avatar-row {
     display: flex;
@@ -172,7 +172,9 @@
     }
   }
 </style>
+{% endblock %}
 
+{% block content %}
 <span class="sr-only-test">Administrator Profile</span>
 
 <div style="max-width: 52rem; margin: 0 auto; padding-bottom: 3rem;">

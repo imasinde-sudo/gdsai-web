@@ -9,6 +9,7 @@
   <title>{% block title %}Dashboard - @iLabAfrica Centre Events{% endblock %}</title>
 
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
 
@@ -20,7 +21,7 @@
         (white) form as the handbook requires on dark backgrounds.
         {% endcomment %}
         <a href="{% url 'events:landing_page' %}" class="sidebar-brand-wrapper brand-lockup brand-lockup--reverse" aria-label="@iLabAfrica Centre home">
-          {% include "events/partials/brand_logo.html" with reverse=True size="sm" %}
+          {% include "events/partials/brand_logo.html" with variant="reverse" size="sm" %}
           <span class="brand-lockup__tagline">Events Admin</span>
         </a>
 

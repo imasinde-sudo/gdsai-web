@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Speaker, Event, EventSeries, Session, APIKey, Question, Attendee
+from .models import Speaker, Event, EventSeries, Session, APIKey, Question, Attendee, Sponsor
 
 
 @admin.register(EventSeries)
@@ -57,3 +57,11 @@ class QuestionAdmin(admin.ModelAdmin):
     list_filter = ("session__event", "session")
     search_fields = ("text",)
     readonly_fields = ("created_at",)
+
+
+@admin.register(Sponsor)
+class SponsorAdmin(admin.ModelAdmin):
+    list_display = ("name", "tier", "website_url", "is_active", "created_at")
+    list_filter = ("tier", "is_active")
+    search_fields = ("name",)
+    ordering = ("name",)

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Speaker, Event, EventSeries, Session, APIKey, Ticket, Attendee
+from .models import Speaker, Event, EventSeries, Session, APIKey, Ticket, Attendee, Sponsor
 
 
 class EventForm(forms.ModelForm):
@@ -48,6 +48,19 @@ class EventSeriesForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["slug"].required = False
+
+
+class SponsorForm(forms.ModelForm):
+    class Meta:
+        model = Sponsor
+        fields = ["name", "logo", "website_url", "tier", "is_active"]
+        widgets = {
+            "name": forms.TextInput(attrs={"placeholder": "e.g. Acme Corp", "class": "form-input"}),
+            "logo": forms.ClearableFileInput(attrs={"class": "form-input-file"}),
+            "website_url": forms.URLInput(attrs={"placeholder": "e.g. https://acme.example.com", "class": "form-input"}),
+            "tier": forms.Select(attrs={"class": "form-select"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-checkbox"}),
+        }
 
 
 class SpeakerForm(forms.ModelForm):

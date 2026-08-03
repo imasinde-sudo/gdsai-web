@@ -5,11 +5,11 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import user_passes_test
 from django.http import JsonResponse, HttpResponse
 from django.db import IntegrityError
-from django.db.models import Prefetch
-from .models import Event, EventSeries, Speaker, Session, APIKey, Question, Attendee, Ticket
+from django.db.models import Prefetch, Case, When, Value, IntegerField
+from .models import Event, EventSeries, Speaker, Session, APIKey, Question, Attendee, Ticket, Sponsor
 from .forms import (
     EventForm, EventSeriesForm, SpeakerForm, SessionForm, APIKeyForm, AdminProfileForm,
-    TicketForm, AttendeeForm, EventRegistrationForm,
+    TicketForm, AttendeeForm, EventRegistrationForm, SponsorForm,
 )
 from .badges import build_badge_verify_url, badge_png_bytes, save_badge_to_attendee
 from .email_service import send_badge_email
@@ -111,10 +111,21 @@ def landing_page(request):
         featured_events = Event.objects.all().order_by("start_date")[:3]
     # Fetch all scheduled conference sessions ordered by start time
     sessions = Session.objects.select_related("event").prefetch_related("speakers").order_by("start_time")
+    # Higher tiers appear first; blank/lower tiers fall back to alphabetical
+    sponsors = Sponsor.objects.filter(is_active=True).annotate(
+        tier_rank=Case(
+            When(tier=Sponsor.TIER_PLATINUM, then=Value(0)),
+            When(tier=Sponsor.TIER_GOLD, then=Value(1)),
+            When(tier=Sponsor.TIER_PARTNER, then=Value(2)),
+            default=Value(3),
+            output_field=IntegerField(),
+        )
+    ).order_by("tier_rank", "name")
     return render(request, "events/landing_page.html", {
         "current_series": current_series,
         "featured_events": featured_events,
         "sessions": sessions,
+        "sponsors": sponsors,
     })
 
 
@@ -273,6 +284,7 @@ def admin_dashboard(request):
     questions = Question.objects.all().order_by("-created_at")
     tickets = Ticket.objects.all().order_by("name")
     attendees = Attendee.objects.select_related("ticket", "event").order_by("-registered_at")
+    sponsors = Sponsor.objects.all().order_by("name")
 
     active_tab = request.GET.get("tab", "events")
 
@@ -285,6 +297,7 @@ def admin_dashboard(request):
         "questions": questions,
         "tickets": tickets,
         "attendees": attendees,
+        "sponsors": sponsors,
         "total_series": series.count(),
         "total_events": events.count(),
         "total_speakers": speakers.count(),
@@ -293,6 +306,7 @@ def admin_dashboard(request):
         "total_questions": questions.count(),
         "total_tickets": tickets.count(),
         "total_attendees": attendees.count(),
+        "total_sponsors": sponsors.count(),
         "active_tab": active_tab,
     }
     return render(request, "events/admin_dashboard.html", context)
@@ -339,6 +353,39 @@ def series_delete(request, series_id):
         series.delete()
         return redirect(f"{reverse('events:admin_dashboard')}?tab=series")
     return render(request, "events/dashboard_confirm_delete.html", {"object": series, "title": "Delete Event Series", "cancel_url": f"{reverse('events:admin_dashboard')}?tab=series"})
+
+
+# --- Sponsors CRUD Views ---
+@user_passes_test(check_admin, login_url='events:login')
+def sponsor_create(request):
+    if request.method == "POST":
+        form = SponsorForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('events:admin_dashboard')}?tab=sponsors")
+    else:
+        form = SponsorForm()
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Create Sponsor", "active_tab": "sponsors"})
+
+@user_passes_test(check_admin, login_url='events:login')
+def sponsor_edit(request, sponsor_id):
+    sponsor = get_object_or_404(Sponsor, pk=sponsor_id)
+    if request.method == "POST":
+        form = SponsorForm(request.POST, request.FILES, instance=sponsor)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('events:admin_dashboard')}?tab=sponsors")
+    else:
+        form = SponsorForm(instance=sponsor)
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Edit Sponsor", "active_tab": "sponsors"})
+
+@user_passes_test(check_admin, login_url='events:login')
+def sponsor_delete(request, sponsor_id):
+    sponsor = get_object_or_404(Sponsor, pk=sponsor_id)
+    if request.method == "POST":
+        sponsor.delete()
+        return redirect(f"{reverse('events:admin_dashboard')}?tab=sponsors")
+    return render(request, "events/dashboard_confirm_delete.html", {"object": sponsor, "title": "Delete Sponsor", "cancel_url": f"{reverse('events:admin_dashboard')}?tab=sponsors"})
 
 
 # --- Events CRUD Views ---

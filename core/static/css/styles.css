@@ -2277,3 +2277,61 @@ img {
     grid-template-columns: 1fr;
   }
 }
+
+/* --------------------------------------------------------------------------
+   30. Sponsors (home page + admin thumbnail)
+   -------------------------------------------------------------------------- */
+.sponsors-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+}
+
+.sponsor-logo-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: grayscale(1);
+  opacity: 0.85;
+  transition: var(--transition-normal);
+}
+
+.sponsor-logo-link:hover {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+.sponsor-logo-img {
+  height: 48px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+}
+
+.sponsor-logo-fallback {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+/* Higher tiers get a larger, more featured logo placement */
+.sponsor-logo-link--platinum .sponsor-logo-img {
+  height: 80px;
+  max-width: 240px;
+}
+
+.sponsor-logo-link--gold .sponsor-logo-img {
+  height: 64px;
+  max-width: 200px;
+}
+
+.sponsor-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  background: var(--surface-sunken);
+  border-radius: var(--radius);
+  padding: 0.25rem;
+}

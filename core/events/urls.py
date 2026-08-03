@@ -29,6 +29,11 @@ urlpatterns = [
     path("dashboard/series/<int:series_id>/edit/", views.series_edit, name="series_edit"),
     path("dashboard/series/<int:series_id>/delete/", views.series_delete, name="series_delete"),
 
+    # Sponsor CRUD
+    path("dashboard/sponsors/add/", views.sponsor_create, name="sponsor_create"),
+    path("dashboard/sponsors/<int:sponsor_id>/edit/", views.sponsor_edit, name="sponsor_edit"),
+    path("dashboard/sponsors/<int:sponsor_id>/delete/", views.sponsor_delete, name="sponsor_delete"),
+
     # Event CRUD
     path("dashboard/events/add/", views.event_create, name="event_create"),
     path("dashboard/events/<int:event_id>/edit/", views.event_edit, name="event_edit"),

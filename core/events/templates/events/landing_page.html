@@ -323,4 +323,35 @@ The reverse lockup is used because the banner runs on Strathmore Black.
     </div>
   </div>
 </section>
+
+<section class="stack-md">
+  <div class="text-center" style="margin-bottom: 3rem;">
+    <span class="brand-rule brand-rule--center"></span>
+    <h2 class="section-title">Our Sponsors</h2>
+    <p class="text-muted">Proud to be supported by organisations invested in research, innovation and enterprise.</p>
+  </div>
+
+  <div class="sponsors-grid">
+    {% for sponsor in sponsors %}
+      <a
+        href="{{ sponsor.website_url }}"
+        target="_blank"
+        rel="noopener sponsored"
+        class="sponsor-logo-link sponsor-logo-link--{{ sponsor.tier|default:'standard'|lower }}"
+        title="{{ sponsor.name }}"
+      >
+        {% if sponsor.logo %}
+          <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" class="sponsor-logo-img">
+        {% else %}
+          <span class="sponsor-logo-fallback">{{ sponsor.name }}</span>
+        {% endif %}
+      </a>
+    {% empty %}
+      <div class="empty-state glass-panel" style="grid-column: 1 / -1;">
+        <h3 class="empty-state-title">No sponsors yet</h3>
+        <p class="empty-state-desc">Sponsor logos will appear here once added from the dashboard.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
 {% endblock %}

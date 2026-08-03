@@ -403,6 +403,73 @@
       </table>
     </div>
 
+  {% elif active_tab == "sponsors" %}
+    <div class="panel-header-group">
+      <h2 class="panel-title">Sponsors</h2>
+      <a href="{% url 'events:sponsor_create' %}" class="btn btn--primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Add Sponsor
+      </a>
+    </div>
+
+    <div class="table-scroll">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Logo</th>
+            <th>Name</th>
+            <th>Tier</th>
+            <th>Website</th>
+            <th>Visible?</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sponsor in sponsors %}
+            <tr>
+              <td>
+                {% if sponsor.logo %}
+                  <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" class="sponsor-thumb">
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+              <td class="cell-primary">{{ sponsor.name }}</td>
+              <td>
+                {% if sponsor.tier %}
+                  <span class="badge badge--orange">{{ sponsor.get_tier_display }}</span>
+                {% else %}
+                  <span class="badge badge--neutral">—</span>
+                {% endif %}
+              </td>
+              <td><a href="{{ sponsor.website_url }}" target="_blank" rel="noopener">{{ sponsor.website_url }}</a></td>
+              <td>
+                {% if sponsor.is_active %}
+                  <span class="badge badge--blue">Visible</span>
+                {% else %}
+                  <span class="badge badge--neutral">Hidden</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="actions-cell">
+                  <a href="{% url 'events:sponsor_edit' sponsor.id %}" class="btn-action-icon edit-btn" title="Edit Sponsor" aria-label="Edit sponsor">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                  </a>
+                  <a href="{% url 'events:sponsor_delete' sponsor.id %}" class="btn-action-icon delete-btn" title="Delete Sponsor" aria-label="Delete sponsor">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="cell-empty">No sponsors yet. Add one to feed the home page "Our Sponsors" section.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
   {% elif active_tab == "attendees" %}
     <div class="panel-header-group">
       <h2 class="panel-title">Event Attendees</h2>

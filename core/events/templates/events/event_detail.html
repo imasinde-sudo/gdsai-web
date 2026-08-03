@@ -46,8 +46,11 @@
 
     <div class="event-register-cta">
       {% if can_register %}
-        <a href="{% url 'events:event_register' event.id %}" class="btn btn--primary btn--lg">Register for this event</a>
-        <p class="form-help" style="margin: 0.75rem 0 0;">Select a ticket, enter your details, and receive your QR badge by email. No payment required yet.</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+          <a href="{% url 'events:event_register' event.id %}" class="btn btn--primary btn--lg">Register for this event</a>
+          <a href="{% url 'events:organisation_register' event.id %}" class="btn btn--outline btn--lg">Register as an organisation</a>
+        </div>
+        <p class="form-help" style="margin: 0.75rem 0 0;">Select a ticket, enter your details, and receive your QR badge by email. No payment required yet. Registering a group of 5 or more? Use the organisation path instead.</p>
       {% else %}
         <p class="text-muted" style="margin: 0;">Registration opens once tickets are published for this event.</p>
       {% endif %}

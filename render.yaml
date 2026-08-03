@@ -2,7 +2,7 @@ services:
   - type: web
     name: gdsai-web
     env: python
-    plan: free
+    plan: starter
     buildCommand: "bash ./build.sh"
     startCommand: "python core/manage.py migrate && python core/manage.py setup_auth && gunicorn --chdir core core.wsgi:application"
     envVars:
@@ -18,6 +18,14 @@ services:
         fromDatabase:
           name: gdsai-db
           property: connectionString
+      - key: PUBLIC_BASE_URL
+        value: "https://gdsai-web.onrender.com"
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_SENDER_EMAIL
+        sync: false
+      - key: BREVO_SENDER_NAME
+        value: "@iLabAfrica Centre"
 
 databases:
   - name: gdsai-db

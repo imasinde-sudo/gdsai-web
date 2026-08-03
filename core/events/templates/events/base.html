@@ -4,25 +4,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Events Management System - Browse schedules, speakers, and events.">
-  <title>{% block title %}Events Management System{% endblock %}</title>
-  
-  <!-- CSS Stylesheet -->
+  <meta name="description" content="@iLabAfrica Centre events: browse schedules, sessions and speakers.">
+  <meta name="theme-color" content="#F96500">
+  <title>{% block title %}@iLabAfrica Centre Events{% endblock %}</title>
+
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
 
-  <!-- Premium Navigation Bar -->
   <nav class="navbar">
     <div class="navbar-container">
-      <a href="{% url 'events:landing_page' %}" class="navbar-logo" id="logo">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="16" y1="2" x2="16" y2="6"></line>
-          <line x1="8" y1="2" x2="8" y2="6"></line>
-          <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
-        EventHub
+      <a href="{% url 'events:landing_page' %}" class="brand-lockup" id="logo" aria-label="@iLabAfrica Centre home">
+        {% include "events/partials/brand_logo.html" %}
+        <span class="brand-lockup__tagline">Events</span>
       </a>
       <ul class="navbar-links">
         <li>
@@ -38,20 +33,25 @@
     </div>
   </nav>
 
-  <!-- Main Content Area -->
   <main class="main-content">
     {% block content %}
     {% endblock %}
   </main>
 
-  <!-- Premium Footer -->
   <footer class="footer">
     <div class="footer-container">
-      <div>&copy; 2026 EventHub Management. All rights reserved.</div>
-      <div>Designed with premium glassmorphic interfaces.</div>
+      <div class="footer-meta">
+        <div>A Centre of Excellence in ICT Research and Innovation, Strathmore University.</div>
+        <div>&copy; {% now "Y" %} @iLabAfrica Centre. All rights reserved.</div>
+        <div>
+          <a class="footer-link" href="https://ilabafrica.strathmore.edu" target="_blank" rel="noopener">ilabafrica.strathmore.edu</a>
+        </div>
+      </div>
+      <div class="footer-logo-slot">
+        {% include "events/partials/brand_logo.html" with variant="reverse" %}
+      </div>
     </div>
   </footer>
 
 </body>
 </html>
-

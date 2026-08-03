@@ -1,46 +1,44 @@
 {% extends "events/dashboard_base.html" %}
 
-{% block title %}{{ title }} - EventHub{% endblock %}
+{% block title %}{{ title }} - @iLabAfrica Centre Events{% endblock %}
 
 {% block content %}
-<!-- Back to Dashboard -->
-<div style="margin-bottom: 2rem;">
-  <a href="{% url 'events:admin_dashboard' %}?tab={{ active_tab }}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent-cyan); font-weight: 500; text-decoration: none;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="19" y1="12" x2="5" y2="12"></line>
-      <polyline points="12 19 5 12 12 5"></polyline>
-    </svg>
-    Back to Dashboard
-  </a>
-</div>
+<a href="{% url 'events:admin_dashboard' %}?tab={{ active_tab }}" class="back-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"></line>
+    <polyline points="12 19 5 12 12 5"></polyline>
+  </svg>
+  Back to dashboard
+</a>
 
-<header style="margin-bottom: 3rem;">
-  <h1 class="gradient-title" style="font-size: 2rem; font-weight: 800; color: #fff;">{{ title }}</h1>
+<header style="margin-bottom: 2.5rem;">
+  <span class="brand-rule"></span>
+  <h1 class="page-title">{{ title }}</h1>
   <p class="section-subtitle">Fill in the fields below to update the system records.</p>
 </header>
 
 <div class="form-card">
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    
+
     <div class="form-group-wrapper">
       {% for field in form %}
         <div class="form-group-field">
           <label for="{{ field.id_for_label }}">{{ field.label }}</label>
           {{ field }}
           {% if field.help_text %}
-            <span style="font-size: 0.75rem; color: var(--text-muted);">{{ field.help_text }}</span>
+            <span class="form-help">{{ field.help_text }}</span>
           {% endif %}
           {% for error in field.errors %}
-            <span style="font-size: 0.8rem; color: var(--accent-red); font-weight: 600;">{{ error }}</span>
+            <span class="form-error">{{ error }}</span>
           {% endfor %}
         </div>
       {% endfor %}
     </div>
 
     <div class="form-actions">
-      <a href="{% url 'events:admin_dashboard' %}?tab={{ active_tab }}" class="btn-cancel">Cancel</a>
-      <button type="submit" class="btn-submit-save">Save Changes</button>
+      <a href="{% url 'events:admin_dashboard' %}?tab={{ active_tab }}" class="btn btn--outline">Cancel</a>
+      <button type="submit" class="btn btn--primary">Save changes</button>
     </div>
   </form>
 </div>

@@ -1,0 +1,98 @@
+{% extends "events/base.html" %}
+
+{% block title %}Register — {{ event.title }}{% endblock %}
+
+{% block content %}
+<a href="{% url 'events:event_detail' event.id %}" class="back-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"></line>
+    <polyline points="12 19 5 12 12 5"></polyline>
+  </svg>
+  Back to event
+</a>
+
+<header style="margin-bottom: 2rem;">
+  <span class="brand-rule"></span>
+  <span class="eyebrow">Event registration</span>
+  <h1 class="page-title">{{ event.title }}</h1>
+  <p class="section-subtitle">
+    Choose your ticket and enter your details. No payment is required at this stage —
+    your badge will be emailed to you after you register.
+  </p>
+  <p class="text-muted" style="font-size: 0.95rem;">
+    <strong>{{ event.start_date|date:"M d, Y · P" }}</strong>
+    &nbsp;·&nbsp; {{ event.location }}
+  </p>
+</header>
+
+{% if no_tickets %}
+  <div class="empty-state glass-panel">
+    <h2 class="empty-state-title">Registration not open yet</h2>
+    <p class="empty-state-desc">Tickets for this event have not been published. Please check back later.</p>
+  </div>
+{% else %}
+  <div class="form-card register-card">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert--danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <fieldset class="register-fieldset">
+        <legend class="register-legend">Select a ticket</legend>
+        <div class="ticket-options">
+          {% for ticket in form.fields.ticket.queryset %}
+            <label class="ticket-option{% if form.ticket.value|stringformat:'s' == ticket.id|stringformat:'s' or form.ticket.value == ticket.id or form.initial.ticket == ticket %} is-selected{% endif %}">
+              <input
+                type="radio"
+                name="{{ form.ticket.html_name }}"
+                value="{{ ticket.id }}"
+                class="ticket-radio"
+                {% if form.ticket.value|stringformat:'s' == ticket.id|stringformat:'s' or form.ticket.value == ticket.id or form.initial.ticket == ticket or form.fields.ticket.queryset|length == 1 %}checked{% endif %}
+                required
+              >
+              <span class="ticket-option__body">
+                <span class="ticket-option__name">{{ ticket.name }}</span>
+                <span class="ticket-option__price">{% if ticket.price == 0 %}Free{% else %}${{ ticket.price }}{% endif %}</span>
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+        {% if form.ticket.errors %}
+          <span class="form-error">{{ form.ticket.errors|striptags }}</span>
+        {% endif %}
+      </fieldset>
+
+      <div class="form-group-wrapper" style="margin-top: 2rem;">
+        <div class="form-group-field">
+          <label for="{{ form.name.id_for_label }}">Full name</label>
+          {{ form.name }}
+          {% for error in form.name.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+        </div>
+        <div class="form-group-field">
+          <label for="{{ form.email.id_for_label }}">Email</label>
+          {{ form.email }}
+          <span class="form-help">Your badge will be sent to this address.</span>
+          {% for error in form.email.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+        </div>
+        <div class="form-group-field">
+          <label for="{{ form.phone_number.id_for_label }}">Phone <span class="text-muted">(optional)</span></label>
+          {{ form.phone_number }}
+          {% for error in form.phone_number.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+        </div>
+        <div class="form-group-field">
+          <label for="{{ form.organization.id_for_label }}">Organisation <span class="text-muted">(optional)</span></label>
+          {{ form.organization }}
+          {% for error in form.organization.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="form-actions" style="justify-content: space-between; align-items: center; gap: 1rem;">
+        <p class="form-help" style="margin: 0;">Payment will not be collected in this step.</p>
+        <button type="submit" class="btn btn--primary btn--lg">Complete registration</button>
+      </div>
+    </form>
+  </div>
+{% endif %}
+{% endblock %}

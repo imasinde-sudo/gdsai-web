@@ -174,7 +174,18 @@ if "test" in sys.argv:
     STORAGES["staticfiles"]["BACKEND"] = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / "media"
+
+# Overridable so a persistent volume can be pointed at it without a code change.
+MEDIA_ROOT = Path(os.environ.get("DJANGO_MEDIA_ROOT") or (BASE_DIR / "media"))
+
+# Absolute site URL used when building badge QR links outside a request context
+# (e.g. management commands). Prefer the request when available.
+PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "").rstrip("/")
+
+# Brevo transactional email (badge delivery)
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
+BREVO_SENDER_EMAIL = os.environ.get("BREVO_SENDER_EMAIL", "")
+BREVO_SENDER_NAME = os.environ.get("BREVO_SENDER_NAME", "@iLabAfrica Centre")
 
 
 from datetime import timedelta

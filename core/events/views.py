@@ -3,11 +3,20 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import user_passes_test
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from django.db import IntegrityError
 from .models import Event, Speaker, Session, APIKey, Question, Attendee, Ticket
-from .forms import EventForm, SpeakerForm, SessionForm, APIKeyForm, AdminProfileForm, TicketForm, AttendeeForm
+from .forms import (
+    EventForm, SpeakerForm, SessionForm, APIKeyForm, AdminProfileForm,
+    TicketForm, AttendeeForm, EventRegistrationForm,
+)
+from .badges import build_badge_verify_url, badge_png_bytes, save_badge_to_attendee
+from .email_service import send_badge_email
 import sys
 import django
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # TEMPORARY DIAGNOSTIC VIEW — Remove after debugging
@@ -61,9 +70,12 @@ def event_detail(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     # Prefetch sessions and their speakers to optimize DB queries
     sessions = event.sessions.all().prefetch_related("speakers", "questions")
+    tickets = event.tickets.all().order_by("price", "name")
     return render(request, "events/event_detail.html", {
         "event": event,
-        "sessions": sessions
+        "sessions": sessions,
+        "tickets": tickets,
+        "can_register": tickets.exists(),
     })
 
 def speaker_detail(request, speaker_id):
@@ -88,7 +100,7 @@ def admin_dashboard(request):
     apikeys = APIKey.objects.all().order_by("-created_at")
     questions = Question.objects.all().order_by("-created_at")
     tickets = Ticket.objects.all().order_by("name")
-    attendees = Attendee.objects.all().order_by("name")
+    attendees = Attendee.objects.select_related("ticket", "event").order_by("-registered_at")
     
     active_tab = request.GET.get("tab", "events")
     
@@ -356,4 +368,106 @@ def attendee_delete(request, attendee_id):
         attendee.delete()
         return redirect(f"{reverse('events:admin_dashboard')}?tab=attendees")
     return render(request, "events/dashboard_confirm_delete.html", {"object": attendee, "title": "Delete Attendee", "cancel_url": f"{reverse('events:admin_dashboard')}?tab=attendees"})
+
+
+# --- Public event registration (no payment) ---
+
+def event_register(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    tickets = event.tickets.all().order_by("price", "name")
+    if not tickets.exists():
+        return render(request, "events/event_register.html", {
+            "event": event,
+            "form": None,
+            "no_tickets": True,
+        })
+
+    if request.method == "POST":
+        form = EventRegistrationForm(request.POST, event=event)
+        if form.is_valid():
+            try:
+                attendee = Attendee(
+                    name=form.cleaned_data["name"].strip(),
+                    email=form.cleaned_data["email"],
+                    phone_number=form.cleaned_data.get("phone_number", "").strip(),
+                    organization=form.cleaned_data.get("organization", "").strip(),
+                    ticket=form.cleaned_data["ticket"],
+                    event=event,
+                    is_registered=True,
+                    payment_status="UNPAID",
+                )
+                attendee.save()
+            except IntegrityError:
+                form.add_error("email", "This email is already registered for this event.")
+            else:
+                verify_url = build_badge_verify_url(attendee, request)
+                try:
+                    badge_png = save_badge_to_attendee(attendee, verify_url)
+                except Exception:
+                    logger.exception("Badge generation failed for attendee %s", attendee.pk)
+                    badge_png = badge_png_bytes(attendee, verify_url)
+
+                email_sent = send_badge_email(attendee, badge_png, verify_url)
+                request.session["registration_email_sent"] = email_sent
+                return redirect("events:registration_success", badge_code=attendee.badge_code)
+    else:
+        form = EventRegistrationForm(event=event)
+
+    return render(request, "events/event_register.html", {
+        "event": event,
+        "form": form,
+        "no_tickets": False,
+    })
+
+
+def registration_success(request, badge_code):
+    attendee = get_object_or_404(
+        Attendee.objects.select_related("event", "ticket"),
+        badge_code=badge_code,
+    )
+    email_sent = request.session.pop("registration_email_sent", None)
+    return render(request, "events/registration_success.html", {
+        "attendee": attendee,
+        "event": attendee.event,
+        "email_sent": email_sent,
+    })
+
+
+def badge_image(request, badge_code):
+    """Serve / regenerate the badge PNG so QR links work without relying on MEDIA_URL."""
+    attendee = get_object_or_404(
+        Attendee.objects.select_related("event", "ticket"),
+        badge_code=badge_code,
+    )
+    verify_url = build_badge_verify_url(attendee, request)
+    png = badge_png_bytes(attendee, verify_url)
+    response = HttpResponse(png, content_type="image/png")
+    response["Content-Disposition"] = f'inline; filename="badge-{badge_code}.png"'
+    response["Cache-Control"] = "private, max-age=300"
+    return response
+
+
+def badge_download(request, badge_code):
+    attendee = get_object_or_404(
+        Attendee.objects.select_related("event", "ticket"),
+        badge_code=badge_code,
+    )
+    verify_url = build_badge_verify_url(attendee, request)
+    png = badge_png_bytes(attendee, verify_url)
+    response = HttpResponse(png, content_type="image/png")
+    response["Content-Disposition"] = f'attachment; filename="badge-{badge_code}.png"'
+    return response
+
+
+def badge_verify(request, badge_code):
+    """Public verification page encoded into the badge QR code."""
+    attendee = get_object_or_404(
+        Attendee.objects.select_related("event", "ticket"),
+        badge_code=badge_code,
+    )
+    return render(request, "events/badge_verify.html", {
+        "attendee": attendee,
+        "event": attendee.event,
+        "valid": attendee.is_registered,
+    })
 

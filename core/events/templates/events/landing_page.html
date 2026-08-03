@@ -113,12 +113,80 @@ The reverse lockup is used because the banner runs on Strathmore Black.
   </div>
 </section>
 
+<!-- Conference Schedule & Timetable Section -->
+<section class="stack-lg">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <span class="brand-rule"></span>
+      <h2 class="section-title">Conference Schedule</h2>
+      <p class="text-muted">View session times, room/locations, and download the official PDF timetable.</p>
+    </div>
+    <div>
+      <a href="{% url 'events:download_timetable_pdf' %}" class="btn btn--primary" style="display: inline-flex; align-items: center; gap: 0.6rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download timetable (PDF)
+      </a>
+    </div>
+  </div>
+
+  <div class="schedule-container" style="display: flex; flex-direction: column; gap: 1rem;">
+    {% for session in sessions %}
+      <div class="session-row glass-panel" style="display: flex; gap: 1.5rem; padding: 1.5rem; border-radius: 12px; align-items: flex-start; flex-wrap: wrap;">
+        <div class="session-time-col" style="min-width: 140px; border-right: 1px solid var(--border-glass); padding-right: 1rem;">
+          <div class="session-time" style="font-weight: 700; font-size: 1.1rem; color: var(--accent-cyan);">{{ session.start_time|date:"P" }}</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0;">to</div>
+          <div class="session-time" style="color: var(--text-muted); font-weight: 600;">{{ session.end_time|date:"P" }}</div>
+          <div class="session-date" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent-purple); font-weight: 600;">{{ session.start_time|date:"M d, Y" }}</div>
+        </div>
+
+        <div class="session-content-col" style="flex: 1; min-width: 250px;">
+          <h3 class="session-title" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.4rem; color: #fff;">{{ session.title }}</h3>
+          {% if session.description %}
+            <p class="session-desc" style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.8rem;">{{ session.description }}</p>
+          {% endif %}
+
+          <div class="session-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 0.5rem;">
+            <div class="meta-item" style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; color: var(--text-muted);">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-cyan);">
+                <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <span><strong>Room/Location:</strong> {% if session.location %}{{ session.location }}{% else %}Main Auditorium{% endif %}</span>
+            </div>
+
+            {% if session.speakers.all %}
+              <div class="session-speakers-list" style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="session-speakers-label" style="font-size: 0.85rem; color: var(--text-muted);">Speakers:</span>
+                {% for speaker in session.speakers.all %}
+                  <a href="{% url 'events:speaker_detail' speaker.id %}" class="speaker-avatar-link" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.2rem 0.6rem; font-size: 0.85rem; text-decoration: none; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff;">
+                    <span>{{ speaker.name }}</span>
+                  </a>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state glass-panel" style="padding: 2rem; text-align: center;">
+        <h3 class="empty-state-title" style="font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem;">No Conference Sessions Listed</h3>
+        <p class="empty-state-desc" style="color: var(--text-muted);">The timetable will be populated as session schedules are published.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
 <section class="stack-md">
   <div class="text-center" style="margin-bottom: 3rem;">
     <span class="brand-rule brand-rule--center"></span>
     <h2 class="section-title">Platform capabilities</h2>
     <p class="text-muted">Event planning built for organisers, speakers and attendees.</p>
   </div>
+
 
   <div class="capabilities-grid">
     <div class="glass-panel capability-card">

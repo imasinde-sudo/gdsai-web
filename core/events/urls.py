@@ -7,7 +7,9 @@ app_name = "events"
 urlpatterns = [
     path("auth-diag/", views.auth_diagnostic, name="auth_diagnostic"),  # TEMPORARY
     path("", views.landing_page, name="landing_page"),
+    path("schedule/pdf/", views.download_timetable_pdf, name="download_timetable_pdf"),
     path("events/", views.event_list, name="event_list"),
+
     path("events/<int:event_id>/", views.event_detail, name="event_detail"),
     path("events/<int:event_id>/register/", views.event_register, name="event_register"),
     path("register/success/<str:badge_code>/", views.registration_success, name="registration_success"),

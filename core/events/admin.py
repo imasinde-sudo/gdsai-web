@@ -1,5 +1,14 @@
 from django.contrib import admin
-from .models import Speaker, Event, Session, APIKey, Question, Attendee
+from .models import Speaker, Event, EventSeries, Session, APIKey, Question, Attendee
+
+
+@admin.register(EventSeries)
+class EventSeriesAdmin(admin.ModelAdmin):
+    list_display = ("name", "year", "slug", "is_current", "created_at")
+    search_fields = ("name", "tagline", "description")
+    list_filter = ("year", "is_current")
+    prepopulated_fields = {"slug": ("name",)}
+    ordering = ("-year", "name")
 
 
 @admin.register(Speaker)
@@ -11,9 +20,9 @@ class SpeakerAdmin(admin.ModelAdmin):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ("title", "start_date", "end_date", "location")
+    list_display = ("title", "series", "start_date", "end_date", "location")
     search_fields = ("title", "description", "location")
-    list_filter = ("start_date", "location")
+    list_filter = ("series", "start_date", "location")
     ordering = ("start_date",)
 
 

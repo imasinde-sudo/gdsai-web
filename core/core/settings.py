@@ -170,8 +170,9 @@ STORAGES = {
 }
 
 import sys
-if "test" in sys.argv:
+if "test" in sys.argv or DEBUG:
     STORAGES["staticfiles"]["BACKEND"] = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
 
 MEDIA_URL = "media/"
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Event, Speaker, Session, Attendee, Question
+from .models import Event, EventSeries, Speaker, Session, Attendee, Question
 
 
 # ---------------------------------------------------------------------------
@@ -24,28 +24,42 @@ class SpeakerSummarySerializer(serializers.ModelSerializer):
 
 
 # ---------------------------------------------------------------------------
+# Event series (umbrella) serializers
+# ---------------------------------------------------------------------------
+
+class EventSeriesSummarySerializer(serializers.ModelSerializer):
+    """Lightweight umbrella reference — nested inside event serializers."""
+    class Meta:
+        model = EventSeries
+        fields = ["id", "name", "slug", "year"]
+
+
+# ---------------------------------------------------------------------------
 # Event serializers
 # ---------------------------------------------------------------------------
 
 class EventListSerializer(serializers.ModelSerializer):
     """Lightweight event card for the mobile events list screen."""
     sessions_count = serializers.IntegerField(read_only=True)
+    series = EventSeriesSummarySerializer(read_only=True)
 
     class Meta:
         model = Event
         fields = [
             "id", "title", "start_date", "end_date",
-            "location", "banner_image", "sessions_count",
+            "location", "banner_image", "sessions_count", "series",
         ]
 
 
 class EventSerializer(serializers.ModelSerializer):
     """Full event detail — used on admin API and event detail screen."""
+    series = EventSeriesSummarySerializer(read_only=True)
+
     class Meta:
         model = Event
         fields = [
             "id", "title", "description",
-            "start_date", "end_date", "location", "banner_image",
+            "start_date", "end_date", "location", "banner_image", "series",
         ]
 
 

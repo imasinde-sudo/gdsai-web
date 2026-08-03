@@ -1,0 +1,62 @@
+{% extends "events/base.html" %}
+
+{% block title %}{{ series.name }} - @iLabAfrica Centre{% endblock %}
+
+{% block content %}
+<header>
+  <span class="brand-rule"></span>
+  <h1 class="page-title">{{ series.name }}</h1>
+  {% if series.tagline %}
+    <p class="section-subtitle">{{ series.tagline }}</p>
+  {% endif %}
+  {% if series.description %}
+    <p class="text-muted">{{ series.description }}</p>
+  {% endif %}
+</header>
+
+<section class="events-grid">
+  {% for event in events %}
+    <div class="event-card glass-panel">
+      {% if event.banner_image %}
+        <img class="event-card-banner" src="{{ event.banner_image.url }}" alt="{{ event.title }}">
+      {% else %}
+        <div class="event-card-banner"></div>
+      {% endif %}
+
+      <div class="event-card-content">
+        <h2 class="event-card-title">{{ event.title }}</h2>
+        <p class="event-card-desc">{{ event.description }}</p>
+
+        <div class="event-card-meta">
+          <div class="meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>{{ event.start_date|date:"M d, Y" }}</span>
+          </div>
+          <div class="meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>{{ event.location }}</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+          <a href="{% url 'events:event_detail' event.id %}" class="btn btn--outline btn--block">View schedule</a>
+          <a href="{% url 'events:event_register' event.id %}" class="btn btn--primary btn--block">Register</a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="empty-state glass-panel" style="grid-column: 1 / -1;">
+      <h3 class="empty-state-title">No sub-events yet</h3>
+      <p class="empty-state-desc">Conference, Masterclasses and Paper Presentation events will appear here once added to {{ series.name }}.</p>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

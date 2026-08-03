@@ -5,9 +5,10 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import user_passes_test
 from django.http import JsonResponse, HttpResponse
 from django.db import IntegrityError
-from .models import Event, Speaker, Session, APIKey, Question, Attendee, Ticket
+from django.db.models import Prefetch
+from .models import Event, EventSeries, Speaker, Session, APIKey, Question, Attendee, Ticket
 from .forms import (
-    EventForm, SpeakerForm, SessionForm, APIKeyForm, AdminProfileForm,
+    EventForm, EventSeriesForm, SpeakerForm, SessionForm, APIKeyForm, AdminProfileForm,
     TicketForm, AttendeeForm, EventRegistrationForm,
 )
 from .badges import build_badge_verify_url, badge_png_bytes, save_badge_to_attendee
@@ -15,8 +16,14 @@ from .email_service import send_badge_email
 import sys
 import django
 import logging
+import io
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
 
 logger = logging.getLogger(__name__)
+
 
 
 # TEMPORARY DIAGNOSTIC VIEW — Remove after debugging
@@ -63,8 +70,14 @@ def check_super(user):
     return user.is_authenticated and user.is_superuser
 
 def event_list(request):
-    events = Event.objects.all().order_by("start_date")
-    return render(request, "events/event_list.html", {"events": events})
+    series_list = EventSeries.objects.prefetch_related(
+        Prefetch("events", queryset=Event.objects.order_by("start_date"))
+    ).order_by("-year", "name")
+    ungrouped_events = Event.objects.filter(series__isnull=True).order_by("start_date")
+    return render(request, "events/event_list.html", {
+        "series_list": series_list,
+        "ungrouped_events": ungrouped_events,
+    })
 
 def event_detail(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
@@ -88,12 +101,171 @@ def speaker_detail(request, speaker_id):
     })
 
 def landing_page(request):
-    # Fetch top 3 upcoming/featured events
-    featured_events = Event.objects.all().order_by("start_date")[:3]
-    return render(request, "events/landing_page.html", {"featured_events": featured_events})
+    current_series = EventSeries.objects.filter(is_current=True).prefetch_related(
+        Prefetch("events", queryset=Event.objects.order_by("start_date"))
+    ).first()
+    if current_series is not None:
+        featured_events = current_series.events.all()
+    else:
+        # No umbrella marked current yet — fall back to the old flat top-3 behaviour.
+        featured_events = Event.objects.all().order_by("start_date")[:3]
+    # Fetch all scheduled conference sessions ordered by start time
+    sessions = Session.objects.select_related("event").prefetch_related("speakers").order_by("start_time")
+    return render(request, "events/landing_page.html", {
+        "current_series": current_series,
+        "featured_events": featured_events,
+        "sessions": sessions,
+    })
+
+
+def download_timetable_pdf(request):
+    """Generate and stream a PDF timetable of all conference sessions."""
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=36,
+        leftMargin=36,
+        topMargin=36,
+        bottomMargin=36
+    )
+    story = []
+
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle(
+        'DocTitle',
+        parent=styles['Heading1'],
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor('#0F172A'),
+        fontName='Helvetica-Bold',
+        spaceAfter=4
+    )
+
+    subtitle_style = ParagraphStyle(
+        'DocSubtitle',
+        parent=styles['Normal'],
+        fontSize=10,
+        leading=14,
+        textColor=colors.HexColor('#64748B'),
+        fontName='Helvetica',
+        spaceAfter=14
+    )
+
+    table_header_style = ParagraphStyle(
+        'TableHeader',
+        parent=styles['Normal'],
+        fontSize=10,
+        leading=12,
+        textColor=colors.white,
+        fontName='Helvetica-Bold'
+    )
+
+    cell_style = ParagraphStyle(
+        'TableCell',
+        parent=styles['Normal'],
+        fontSize=9,
+        leading=12,
+        textColor=colors.HexColor('#1E293B'),
+        fontName='Helvetica'
+    )
+
+    cell_bold = ParagraphStyle(
+        'TableCellBold',
+        parent=styles['Normal'],
+        fontSize=9,
+        leading=12,
+        textColor=colors.HexColor('#0F172A'),
+        fontName='Helvetica-Bold'
+    )
+
+    story.append(Paragraph("GDSAI Summit — Official Timetable & Schedule", title_style))
+    story.append(Paragraph("Includes session start/end times, room locations, and keynote speakers.", subtitle_style))
+    story.append(Spacer(1, 10))
+
+    sessions = Session.objects.select_related("event").prefetch_related("speakers").order_by("start_time")
+
+    data = [
+        [
+            Paragraph("Time", table_header_style),
+            Paragraph("Session Title & Event", table_header_style),
+            Paragraph("Room / Location", table_header_style),
+            Paragraph("Speakers", table_header_style),
+        ]
+    ]
+
+    for s in sessions:
+        time_str = f"{s.start_time.strftime('%b %d, %H:%M')} - {s.end_time.strftime('%H:%M')}"
+        event_name = s.event.title if s.event else "GDSAI Summit"
+        title_content = f"<b>{s.title}</b><br/><font color='#64748B' size=8>{event_name}</font>"
+        location_str = s.location if s.location else "Main Auditorium"
+        speaker_names = ", ".join([sp.name for sp in s.speakers.all()]) if s.speakers.exists() else "—"
+
+        data.append([
+            Paragraph(time_str, cell_bold),
+            Paragraph(title_content, cell_style),
+            Paragraph(location_str, cell_style),
+            Paragraph(speaker_names, cell_style),
+        ])
+
+    if len(data) == 1:
+        data.append([
+            Paragraph("—", cell_style),
+            Paragraph("No sessions currently scheduled.", cell_style),
+            Paragraph("—", cell_style),
+            Paragraph("—", cell_style),
+        ])
+
+    col_widths = [110, 193, 110, 110]
+    t = Table(data, colWidths=col_widths, repeatRows=1)
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0F172A')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F8FAFC')]),
+    ]))
+
+    story.append(t)
+    doc.build(story)
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="GDSAI_Conference_Schedule.pdf"'
+    response.write(pdf)
+    return response
+
+
+def series_list(request):
+    all_series = EventSeries.objects.prefetch_related(
+        Prefetch("events", queryset=Event.objects.order_by("start_date"))
+    ).order_by("-year", "name")
+    return render(request, "events/series_list.html", {"series_list": all_series})
+
+
+def series_detail(request, slug):
+    series = get_object_or_404(
+        EventSeries.objects.prefetch_related(
+            Prefetch("events", queryset=Event.objects.order_by("start_date"))
+        ),
+        slug=slug,
+    )
+    return render(request, "events/series_detail.html", {
+        "series": series,
+        "events": series.events.all(),
+    })
+
 
 @user_passes_test(check_admin, login_url='events:login')
 def admin_dashboard(request):
+    series = EventSeries.objects.all().order_by("-year", "name")
     events = Event.objects.all().order_by("start_date")
     speakers = Speaker.objects.all().order_by("name")
     sessions = Session.objects.all().order_by("start_time")
@@ -101,10 +273,11 @@ def admin_dashboard(request):
     questions = Question.objects.all().order_by("-created_at")
     tickets = Ticket.objects.all().order_by("name")
     attendees = Attendee.objects.select_related("ticket", "event").order_by("-registered_at")
-    
+
     active_tab = request.GET.get("tab", "events")
-    
+
     context = {
+        "series": series,
         "events": events,
         "speakers": speakers,
         "sessions": sessions,
@@ -112,6 +285,7 @@ def admin_dashboard(request):
         "questions": questions,
         "tickets": tickets,
         "attendees": attendees,
+        "total_series": series.count(),
         "total_events": events.count(),
         "total_speakers": speakers.count(),
         "total_sessions": sessions.count(),
@@ -133,6 +307,39 @@ def system_status(request):
         "debug_mode": django_settings.DEBUG,
     }
     return render(request, "events/system_status.html", context)
+
+# --- Event Series (umbrella) CRUD Views ---
+@user_passes_test(check_admin, login_url='events:login')
+def series_create(request):
+    if request.method == "POST":
+        form = EventSeriesForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('events:admin_dashboard')}?tab=series")
+    else:
+        form = EventSeriesForm()
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Create Event Series", "active_tab": "series"})
+
+@user_passes_test(check_admin, login_url='events:login')
+def series_edit(request, series_id):
+    series = get_object_or_404(EventSeries, pk=series_id)
+    if request.method == "POST":
+        form = EventSeriesForm(request.POST, request.FILES, instance=series)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('events:admin_dashboard')}?tab=series")
+    else:
+        form = EventSeriesForm(instance=series)
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Edit Event Series", "active_tab": "series"})
+
+@user_passes_test(check_admin, login_url='events:login')
+def series_delete(request, series_id):
+    series = get_object_or_404(EventSeries, pk=series_id)
+    if request.method == "POST":
+        series.delete()
+        return redirect(f"{reverse('events:admin_dashboard')}?tab=series")
+    return render(request, "events/dashboard_confirm_delete.html", {"object": series, "title": "Delete Event Series", "cancel_url": f"{reverse('events:admin_dashboard')}?tab=series"})
+
 
 # --- Events CRUD Views ---
 @user_passes_test(check_admin, login_url='events:login')

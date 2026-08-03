@@ -9,49 +9,128 @@
   <p class="section-subtitle">Browse upcoming conferences, keynote sessions and workshops hosted by the @iLabAfrica Centre, and map out your own schedule.</p>
 </header>
 
-<section class="events-grid">
-  {% for event in events %}
-    <div class="event-card glass-panel">
-      {% if event.banner_image %}
-        <img class="event-card-banner" src="{{ event.banner_image.url }}" alt="{{ event.title }}">
-      {% else %}
-        <div class="event-card-banner"></div>
-      {% endif %}
+{% for series in series_list %}
+  <section class="stack-md" style="margin-bottom: 3rem;">
+    <div class="section-head">
+      <div>
+        <span class="brand-rule"></span>
+        <h2 class="section-title">{{ series.name }}</h2>
+        {% if series.tagline %}<p class="text-muted">{{ series.tagline }}</p>{% endif %}
+      </div>
+      <a href="{% url 'events:series_detail' series.slug %}" class="link-arrow">
+        View {{ series.name }}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </div>
 
-      <div class="event-card-content">
-        <h2 class="event-card-title">{{ event.title }}</h2>
-        <p class="event-card-desc">{{ event.description }}</p>
+    <div class="events-grid">
+      {% for event in series.events.all %}
+        <div class="event-card glass-panel">
+          {% if event.banner_image %}
+            <img class="event-card-banner" src="{{ event.banner_image.url }}" alt="{{ event.title }}">
+          {% else %}
+            <div class="event-card-banner"></div>
+          {% endif %}
 
-        <div class="event-card-meta">
-          <div class="meta-item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            <span>{{ event.start_date|date:"M d, Y - P" }}</span>
-          </div>
-          <div class="meta-item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-            <span>{{ event.location }}</span>
+          <div class="event-card-content">
+            <h2 class="event-card-title">{{ event.title }}</h2>
+            <p class="event-card-desc">{{ event.description }}</p>
+
+            <div class="event-card-meta">
+              <div class="meta-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>{{ event.start_date|date:"M d, Y - P" }}</span>
+              </div>
+              <div class="meta-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>{{ event.location }}</span>
+              </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+              <a href="{% url 'events:event_detail' event.id %}" class="btn btn--outline btn--block">View schedule</a>
+              <a href="{% url 'events:event_register' event.id %}" class="btn btn--primary btn--block">Register</a>
+            </div>
           </div>
         </div>
-
-        <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
-          <a href="{% url 'events:event_detail' event.id %}" class="btn btn--outline btn--block">View schedule</a>
-          <a href="{% url 'events:event_register' event.id %}" class="btn btn--primary btn--block">Register</a>
+      {% empty %}
+        <div class="empty-state glass-panel" style="grid-column: 1 / -1;">
+          <h3 class="empty-state-title">No sub-events yet</h3>
+          <p class="empty-state-desc">Nothing has been added under {{ series.name }} yet.</p>
         </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endfor %}
+
+{% if ungrouped_events %}
+  <section class="stack-md">
+    <div class="section-head">
+      <div>
+        <span class="brand-rule"></span>
+        <h2 class="section-title">Other events</h2>
+        <p class="text-muted">Not yet assigned to a series umbrella.</p>
       </div>
     </div>
-  {% empty %}
-    <div class="empty-state glass-panel" style="grid-column: 1 / -1;">
-      <h3 class="empty-state-title">No events available</h3>
-      <p class="empty-state-desc">There are currently no events published. Sign in to the dashboard to publish one.</p>
+
+    <div class="events-grid">
+      {% for event in ungrouped_events %}
+        <div class="event-card glass-panel">
+          {% if event.banner_image %}
+            <img class="event-card-banner" src="{{ event.banner_image.url }}" alt="{{ event.title }}">
+          {% else %}
+            <div class="event-card-banner"></div>
+          {% endif %}
+
+          <div class="event-card-content">
+            <h2 class="event-card-title">{{ event.title }}</h2>
+            <p class="event-card-desc">{{ event.description }}</p>
+
+            <div class="event-card-meta">
+              <div class="meta-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>{{ event.start_date|date:"M d, Y - P" }}</span>
+              </div>
+              <div class="meta-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>{{ event.location }}</span>
+              </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+              <a href="{% url 'events:event_detail' event.id %}" class="btn btn--outline btn--block">View schedule</a>
+              <a href="{% url 'events:event_register' event.id %}" class="btn btn--primary btn--block">Register</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
     </div>
-  {% endfor %}
-</section>
+  </section>
+{% endif %}
+
+{% if not series_list and not ungrouped_events %}
+  <div class="empty-state glass-panel">
+    <h3 class="empty-state-title">No events available</h3>
+    <p class="empty-state-desc">There are currently no events published. Sign in to the dashboard to publish one.</p>
+  </div>
+{% endif %}
 {% endblock %}

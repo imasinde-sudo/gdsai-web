@@ -15,16 +15,23 @@ The reverse lockup is used because the banner runs on Strathmore Black.
     </div>
 
     <div class="hero-body">
-      <span class="hero-badge">
-        {% if current_series %}{{ current_series.name }}{% else %}Research &middot; Innovation &middot; Entrepreneurship{% endif %}
-      </span>
+      <div class="hero-brand-row">
+        <span class="hero-badge">
+          {% if current_series %}{{ current_series.name }}{% else %}Research &middot; Innovation &middot; Entrepreneurship{% endif %}
+        </span>
+        {% if current_series %}
+          <span class="hero-year">{{ current_series.year }}</span>
+        {% endif %}
+      </div>
 
       <h1 class="hero-title">
         {% if current_series and current_series.tagline %}{{ current_series.tagline }}{% else %}Where research, innovation and enterprise meet.{% endif %}
       </h1>
 
       <p class="hero-description">
-        {% if current_series %}
+        {% if current_series and current_series.description %}
+          {{ current_series.description }}
+        {% elif current_series %}
           {{ current_series.name }} brings together the Conference, Masterclasses and Paper
           Presentation tracks under one umbrella. Browse full schedules, meet the speakers
           and plan your day session by session.

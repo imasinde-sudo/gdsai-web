@@ -667,6 +667,13 @@ img {
   );
 }
 
+.hero-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
 .hero-badge {
   display: inline-block;
   font-size: 0.72rem;
@@ -677,7 +684,18 @@ img {
   border: 1px solid var(--orange-30);
   border-radius: var(--radius-pill);
   padding: 0.3rem 0.9rem;
-  margin-bottom: 1.25rem;
+}
+
+.hero-brand-row .hero-badge {
+  margin-bottom: 0;
+}
+
+.hero-year {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-on-dark);
+  opacity: 0.85;
 }
 
 /* --------------------------------------------------------------------------

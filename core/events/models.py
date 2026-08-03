@@ -57,6 +57,41 @@ class Event(models.Model):
         return self.title
 
 
+class Organisation(models.Model):
+    LOCAL = "LOCAL"
+    INTERNATIONAL = "INTERNATIONAL"
+    LOCALISATION_CHOICES = [
+        (LOCAL, "Local"),
+        (INTERNATIONAL, "International"),
+    ]
+
+    PAY_NOW = "PAY_NOW"
+    INVITATION_LETTER = "INVITATION_LETTER"
+    REGISTRATION_OPTION_CHOICES = [
+        (PAY_NOW, "Pay now"),
+        (INVITATION_LETTER, "Request invitation letter"),
+    ]
+
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="organisations")
+    name = models.CharField(max_length=255, verbose_name="Organisation name")
+    contact_email = models.EmailField(help_text="Primary point of contact for the group")
+    localisation = models.CharField(max_length=20, choices=LOCALISATION_CHOICES)
+    registration_option = models.CharField(max_length=20, choices=REGISTRATION_OPTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["event", "contact_email"],
+                name="unique_organisation_contact_email_per_event",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.event.title})"
+
+
 class Session(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="sessions")
     title = models.CharField(max_length=255)
@@ -102,6 +137,10 @@ class Attendee(models.Model):
     email_sent_at = models.DateTimeField(null=True, blank=True)
     ticket = models.ForeignKey(Ticket, on_delete=models.SET_NULL, null=True, blank=True, related_name="attendees")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees", null=True, blank=True)
+    organisation = models.ForeignKey(
+        Organisation, on_delete=models.SET_NULL, null=True, blank=True, related_name="attendees",
+        help_text="Set when this attendee was registered as part of a group/organisation registration",
+    )
     registered_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

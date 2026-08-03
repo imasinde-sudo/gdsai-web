@@ -6,10 +6,11 @@ from django.contrib.auth.decorators import user_passes_test
 from django.http import JsonResponse, HttpResponse
 from django.db import IntegrityError
 from django.db.models import Prefetch, Case, When, Value, IntegerField
-from .models import Event, EventSeries, Speaker, Session, APIKey, Question, Attendee, Ticket, Sponsor
+from .models import Event, EventSeries, Speaker, Session, APIKey, Question, Attendee, Ticket, Sponsor, Organisation
 from .forms import (
     EventForm, EventSeriesForm, SpeakerForm, SessionForm, APIKeyForm, AdminProfileForm,
     TicketForm, AttendeeForm, EventRegistrationForm, SponsorForm,
+    OrganisationForm, OrganisationRegistrationForm, OrgAttendeeFormSet,
 )
 from .badges import build_badge_verify_url, badge_png_bytes, save_badge_to_attendee
 from .email_service import send_badge_email
@@ -285,6 +286,7 @@ def admin_dashboard(request):
     tickets = Ticket.objects.all().order_by("name")
     attendees = Attendee.objects.select_related("ticket", "event").order_by("-registered_at")
     sponsors = Sponsor.objects.all().order_by("name")
+    organisations = Organisation.objects.select_related("event").order_by("name")
 
     active_tab = request.GET.get("tab", "events")
 
@@ -298,6 +300,7 @@ def admin_dashboard(request):
         "tickets": tickets,
         "attendees": attendees,
         "sponsors": sponsors,
+        "organisations": organisations,
         "total_series": series.count(),
         "total_events": events.count(),
         "total_speakers": speakers.count(),
@@ -307,6 +310,7 @@ def admin_dashboard(request):
         "total_tickets": tickets.count(),
         "total_attendees": attendees.count(),
         "total_sponsors": sponsors.count(),
+        "total_organisations": organisations.count(),
         "active_tab": active_tab,
     }
     return render(request, "events/admin_dashboard.html", context)
@@ -386,6 +390,39 @@ def sponsor_delete(request, sponsor_id):
         sponsor.delete()
         return redirect(f"{reverse('events:admin_dashboard')}?tab=sponsors")
     return render(request, "events/dashboard_confirm_delete.html", {"object": sponsor, "title": "Delete Sponsor", "cancel_url": f"{reverse('events:admin_dashboard')}?tab=sponsors"})
+
+
+# --- Organisations CRUD Views ---
+@user_passes_test(check_admin, login_url='events:login')
+def organisation_create(request):
+    if request.method == "POST":
+        form = OrganisationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('events:admin_dashboard')}?tab=organisations")
+    else:
+        form = OrganisationForm()
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Create Organisation", "active_tab": "organisations"})
+
+@user_passes_test(check_admin, login_url='events:login')
+def organisation_edit(request, organisation_id):
+    organisation = get_object_or_404(Organisation, pk=organisation_id)
+    if request.method == "POST":
+        form = OrganisationForm(request.POST, instance=organisation)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('events:admin_dashboard')}?tab=organisations")
+    else:
+        form = OrganisationForm(instance=organisation)
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Edit Organisation", "active_tab": "organisations"})
+
+@user_passes_test(check_admin, login_url='events:login')
+def organisation_delete(request, organisation_id):
+    organisation = get_object_or_404(Organisation, pk=organisation_id)
+    if request.method == "POST":
+        organisation.delete()
+        return redirect(f"{reverse('events:admin_dashboard')}?tab=organisations")
+    return render(request, "events/dashboard_confirm_delete.html", {"object": organisation, "title": "Delete Organisation", "cancel_url": f"{reverse('events:admin_dashboard')}?tab=organisations"})
 
 
 # --- Events CRUD Views ---
@@ -684,6 +721,81 @@ def registration_success(request, badge_code):
         "attendee": attendee,
         "event": attendee.event,
         "email_sent": email_sent,
+    })
+
+
+# --- Public organisation (group) registration — minimum 5 people ---
+
+def organisation_register(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    tickets = event.tickets.all().order_by("price", "name")
+    if not tickets.exists():
+        return render(request, "events/organisation_register.html", {
+            "event": event,
+            "org_form": None,
+            "formset": None,
+            "no_tickets": True,
+        })
+
+    if request.method == "POST":
+        org_form = OrganisationRegistrationForm(request.POST, event=event)
+        formset = OrgAttendeeFormSet(request.POST, form_kwargs={"event": event})
+        if org_form.is_valid() and formset.is_valid():
+            try:
+                organisation = org_form.save(commit=False)
+                organisation.event = event
+                organisation.save()
+            except IntegrityError:
+                org_form.add_error(
+                    "contact_email",
+                    "An organisation has already registered with this contact email for this event.",
+                )
+            else:
+                for member_form in formset.forms:
+                    data = member_form.cleaned_data
+                    if not data:
+                        continue
+                    attendee = Attendee(
+                        name=data["name"].strip(),
+                        email=data["email"],
+                        phone_number=data.get("phone_number", "").strip(),
+                        ticket=data["ticket"],
+                        event=event,
+                        organisation=organisation,
+                        is_registered=True,
+                        payment_status="UNPAID",
+                    )
+                    attendee.save()
+                    verify_url = build_badge_verify_url(attendee, request)
+                    try:
+                        badge_png = save_badge_to_attendee(attendee, verify_url)
+                    except Exception:
+                        logger.exception("Badge generation failed for attendee %s", attendee.pk)
+                        badge_png = badge_png_bytes(attendee, verify_url)
+                    send_badge_email(attendee, badge_png, verify_url)
+                return redirect("events:organisation_registration_success", organisation_id=organisation.id)
+    else:
+        org_form = OrganisationRegistrationForm(event=event)
+        formset = OrgAttendeeFormSet(form_kwargs={"event": event})
+
+    return render(request, "events/organisation_register.html", {
+        "event": event,
+        "org_form": org_form,
+        "formset": formset,
+        "no_tickets": False,
+    })
+
+
+def organisation_registration_success(request, organisation_id):
+    organisation = get_object_or_404(
+        Organisation.objects.select_related("event"),
+        pk=organisation_id,
+    )
+    attendees = organisation.attendees.select_related("ticket").order_by("name")
+    return render(request, "events/organisation_registration_success.html", {
+        "organisation": organisation,
+        "event": organisation.event,
+        "attendees": attendees,
     })
 
 

@@ -14,7 +14,9 @@ urlpatterns = [
 
     path("events/<int:event_id>/", views.event_detail, name="event_detail"),
     path("events/<int:event_id>/register/", views.event_register, name="event_register"),
+    path("events/<int:event_id>/register/organisation/", views.organisation_register, name="organisation_register"),
     path("register/success/<str:badge_code>/", views.registration_success, name="registration_success"),
+    path("register/organisation/success/<int:organisation_id>/", views.organisation_registration_success, name="organisation_registration_success"),
     path("badges/<str:badge_code>/", views.badge_verify, name="badge_verify"),
     path("badges/<str:badge_code>/image.png", views.badge_image, name="badge_image"),
     path("badges/<str:badge_code>/download/", views.badge_download, name="badge_download"),
@@ -33,6 +35,11 @@ urlpatterns = [
     path("dashboard/sponsors/add/", views.sponsor_create, name="sponsor_create"),
     path("dashboard/sponsors/<int:sponsor_id>/edit/", views.sponsor_edit, name="sponsor_edit"),
     path("dashboard/sponsors/<int:sponsor_id>/delete/", views.sponsor_delete, name="sponsor_delete"),
+
+    # Organisation CRUD
+    path("dashboard/organisations/add/", views.organisation_create, name="organisation_create"),
+    path("dashboard/organisations/<int:organisation_id>/edit/", views.organisation_edit, name="organisation_edit"),
+    path("dashboard/organisations/<int:organisation_id>/delete/", views.organisation_delete, name="organisation_delete"),
 
     # Event CRUD
     path("dashboard/events/add/", views.event_create, name="event_create"),

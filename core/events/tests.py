@@ -260,3 +260,20 @@ class MobileAPIv1Tests(TestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn('error', response.json())
+
+    # --- Schedule & PDF Download Tests ---
+
+    def test_landing_page_renders_schedule_and_pdf_button(self):
+        response = self.client.get(reverse('events:landing_page'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Conference Schedule')
+        self.assertContains(response, 'Download timetable (PDF)')
+        self.assertContains(response, self.session.title)
+
+    def test_download_timetable_pdf_returns_pdf_attachment(self):
+        response = self.client.get(reverse('events:download_timetable_pdf'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertTrue('filename="GDSAI_Conference_Schedule.pdf"' in response['Content-Disposition'])
+        self.assertTrue(response.content.startswith(b'%PDF'))
+

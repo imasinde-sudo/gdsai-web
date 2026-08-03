@@ -10,8 +10,8 @@ class EventForm(forms.ModelForm):
         widgets = {
             "title": forms.TextInput(attrs={"placeholder": "e.g. AI Innovation Summit 2026", "class": "form-input"}),
             "description": forms.Textarea(attrs={"placeholder": "Provide a descriptive overview...", "class": "form-input", "rows": 4}),
-            "start_date": forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-input"}),
-            "end_date": forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-input"}),
+            "start_date": forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={"type": "datetime-local", "step": "1", "class": "form-input"}),
+            "end_date": forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={"type": "datetime-local", "step": "1", "class": "form-input"}),
             "location": forms.TextInput(attrs={"placeholder": "e.g. Hall C / Online", "class": "form-input"}),
             "banner_image": forms.ClearableFileInput(attrs={"class": "form-input-file"}),
         }
@@ -50,8 +50,9 @@ class SessionForm(forms.ModelForm):
             "event": forms.Select(attrs={"class": "form-select"}),
             "title": forms.TextInput(attrs={"placeholder": "e.g. Keynote Presentation", "class": "form-input"}),
             "description": forms.Textarea(attrs={"placeholder": "Provide session details...", "class": "form-input", "rows": 4}),
-            "start_time": forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-input"}),
-            "end_time": forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-input"}),
+            "start_time": forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={"type": "datetime-local", "step": "1", "class": "form-input"}),
+            "end_time": forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={"type": "datetime-local", "step": "1", "class": "form-input"}),
+
             "location": forms.TextInput(attrs={"placeholder": "e.g. Room 104", "class": "form-input"}),
             "speakers": forms.SelectMultiple(attrs={"class": "form-select-multiple"}),
             "presentation_slides": forms.ClearableFileInput(attrs={"class": "form-input-file"}),
@@ -110,7 +111,8 @@ class AttendeeForm(forms.ModelForm):
             "organization": forms.TextInput(attrs={"placeholder": "e.g. Strathmore University", "class": "form-input"}),
             "is_registered": forms.CheckboxInput(attrs={"class": "form-checkbox"}),
             "payment_status": forms.Select(attrs={"class": "form-select"}),
-            "paid_at": forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-input", "required": False}),
+            "paid_at": forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={"type": "datetime-local", "step": "1", "class": "form-input", "required": False}),
+
             "ticket": forms.Select(attrs={"class": "form-select"}),
             "event": forms.Select(attrs={"class": "form-select"}),
         }

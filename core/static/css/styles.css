@@ -2335,3 +2335,46 @@ img {
   border-radius: var(--radius);
   padding: 0.25rem;
 }
+
+/* --------------------------------------------------------------------------
+   31. Organisation (group) registration
+   -------------------------------------------------------------------------- */
+.radio-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.radio-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  transition: var(--transition-fast);
+}
+
+.radio-pill:hover,
+.radio-pill:has(input:checked) {
+  border-color: var(--brand-orange);
+  color: var(--text-strong);
+  box-shadow: 0 0 0 3px var(--orange-12);
+}
+
+.radio-pill input {
+  accent-color: var(--brand-orange);
+}
+
+.attendee-formset-table th,
+.attendee-formset-table td {
+  min-width: 160px;
+}
+
+.attendee-formset-table .form-error {
+  display: block;
+  margin-top: 0.35rem;
+}

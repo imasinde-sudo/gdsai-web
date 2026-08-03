@@ -1,0 +1,129 @@
+{% extends "events/base.html" %}
+
+{% block title %}Register your organisation — {{ event.title }}{% endblock %}
+
+{% block content %}
+<a href="{% url 'events:event_detail' event.id %}" class="back-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"></line>
+    <polyline points="12 19 5 12 12 5"></polyline>
+  </svg>
+  Back to event
+</a>
+
+<header style="margin-bottom: 2rem;">
+  <span class="brand-rule"></span>
+  <span class="eyebrow">Organisation registration</span>
+  <h1 class="page-title">{{ event.title }}</h1>
+  <p class="section-subtitle">
+    Register your organisation as a group of 5 or more. Each person listed
+    below still receives their own badge and QR code by email — no payment
+    is required at this stage.
+  </p>
+</header>
+
+{% if no_tickets %}
+  <div class="empty-state glass-panel">
+    <h2 class="empty-state-title">Registration not open yet</h2>
+    <p class="empty-state-desc">Tickets for this event have not been published. Please check back later.</p>
+  </div>
+{% else %}
+  <div class="form-card register-card" style="max-width: 68rem;">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      {% if org_form.non_field_errors %}
+        <div class="alert alert--danger">{{ org_form.non_field_errors }}</div>
+      {% endif %}
+      {% if formset.non_form_errors %}
+        <div class="alert alert--danger">{{ formset.non_form_errors }}</div>
+      {% endif %}
+
+      <fieldset class="register-fieldset">
+        <legend class="register-legend">Organisation details</legend>
+
+        <div class="form-group-wrapper">
+          <div class="form-group-field">
+            <label for="{{ org_form.name.id_for_label }}">Organisation name</label>
+            {{ org_form.name }}
+            {% for error in org_form.name.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+          </div>
+          <div class="form-group-field">
+            <label for="{{ org_form.contact_email.id_for_label }}">Contact email</label>
+            {{ org_form.contact_email }}
+            <span class="form-help">Primary point of contact for the group.</span>
+            {% for error in org_form.contact_email.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+          </div>
+        </div>
+
+        <div class="form-group-wrapper" style="margin-top: 1.5rem;">
+          <div class="form-group-field">
+            <label>Localisation</label>
+            <div class="radio-pill-group">
+              {% for radio in org_form.localisation %}
+                <label class="radio-pill">{{ radio.tag }} {{ radio.choice_label }}</label>
+              {% endfor %}
+            </div>
+            {% for error in org_form.localisation.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+          </div>
+          <div class="form-group-field">
+            <label>Registration option</label>
+            <div class="radio-pill-group">
+              {% for radio in org_form.registration_option %}
+                <label class="radio-pill">{{ radio.tag }} {{ radio.choice_label }}</label>
+              {% endfor %}
+            </div>
+            {% for error in org_form.registration_option.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="register-fieldset" style="margin-top: 2rem;">
+        <legend class="register-legend">People in your group <span class="text-muted">(minimum 5)</span></legend>
+        <p class="form-help" style="margin-bottom: 1rem;">
+          Fill in at least 5 rows below. Extra blank rows are ignored, so it's fine to leave unused ones empty.
+        </p>
+
+        {{ formset.management_form }}
+
+        <div class="table-scroll">
+          <table class="admin-table attendee-formset-table">
+            <thead>
+              <tr>
+                <th>Full name</th>
+                <th>Email</th>
+                <th>Phone <span class="text-muted">(optional)</span></th>
+                <th>Ticket</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for member_form in formset %}
+                <tr>
+                  <td>
+                    {{ member_form.name }}
+                    {% for error in member_form.name.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+                  </td>
+                  <td>
+                    {{ member_form.email }}
+                    {% for error in member_form.email.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+                  </td>
+                  <td>{{ member_form.phone_number }}</td>
+                  <td>
+                    {{ member_form.ticket }}
+                    {% for error in member_form.ticket.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+
+      <div class="form-actions" style="justify-content: space-between; align-items: center; gap: 1rem; margin-top: 2rem;">
+        <p class="form-help" style="margin: 0;">Payment will not be collected in this step.</p>
+        <button type="submit" class="btn btn--primary btn--lg">Complete organisation registration</button>
+      </div>
+    </form>
+  </div>
+{% endif %}
+{% endblock %}

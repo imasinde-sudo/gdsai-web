@@ -1,0 +1,53 @@
+{% extends "events/base.html" %}
+
+{% block title %}Organisation registered — {{ event.title }}{% endblock %}
+
+{% block content %}
+<header class="text-center" style="margin-bottom: 2rem;">
+  <span class="brand-rule brand-rule--center"></span>
+  <span class="eyebrow">Registration complete</span>
+  <h1 class="page-title">{{ organisation.name }} is on the list</h1>
+  <p class="section-subtitle" style="margin-left: auto; margin-right: auto;">
+    {{ event.title }} &middot; {{ attendees|length }} attendee{{ attendees|length|pluralize }} registered
+  </p>
+</header>
+
+<div class="glass-panel" style="padding: 2rem; max-width: 60rem; margin: 0 auto 2rem;">
+  <div class="alert alert--info">
+    Every badge below was emailed directly to its attendee at <strong>{{ organisation.contact_email }}</strong>'s
+    group — check each inbox (and spam folder). You can also download or verify any badge from this page.
+  </div>
+
+  <div class="table-scroll" style="margin-top: 1.5rem;">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Ticket</th>
+          <th>Badge</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for attendee in attendees %}
+          <tr>
+            <td class="cell-primary">{{ attendee.name }}</td>
+            <td>{{ attendee.email }}</td>
+            <td>{{ attendee.ticket.name|default:"-" }}</td>
+            <td>
+              <div class="actions-cell">
+                <a href="{% url 'events:badge_download' attendee.badge_code %}" class="btn btn--outline" style="font-size: 0.825rem; padding: 0.4rem 0.9rem;">Download</a>
+                <a href="{% url 'events:badge_verify' attendee.badge_code %}" class="btn btn--outline" style="font-size: 0.825rem; padding: 0.4rem 0.9rem;">Verify</a>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="form-actions" style="justify-content: center; margin-top: 1.75rem;">
+    <a href="{% url 'events:event_detail' event.id %}" class="btn btn--primary">View schedule</a>
+  </div>
+</div>
+{% endblock %}

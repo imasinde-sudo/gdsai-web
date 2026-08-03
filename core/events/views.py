@@ -5,9 +5,10 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import user_passes_test
 from django.http import JsonResponse, HttpResponse
 from django.db import IntegrityError
-from .models import Event, Speaker, Session, APIKey, Question, Attendee, Ticket
+from django.db.models import Prefetch
+from .models import Event, EventSeries, Speaker, Session, APIKey, Question, Attendee, Ticket
 from .forms import (
-    EventForm, SpeakerForm, SessionForm, APIKeyForm, AdminProfileForm,
+    EventForm, EventSeriesForm, SpeakerForm, SessionForm, APIKeyForm, AdminProfileForm,
     TicketForm, AttendeeForm, EventRegistrationForm,
 )
 from .badges import build_badge_verify_url, badge_png_bytes, save_badge_to_attendee
@@ -69,8 +70,14 @@ def check_super(user):
     return user.is_authenticated and user.is_superuser
 
 def event_list(request):
-    events = Event.objects.all().order_by("start_date")
-    return render(request, "events/event_list.html", {"events": events})
+    series_list = EventSeries.objects.prefetch_related(
+        Prefetch("events", queryset=Event.objects.order_by("start_date"))
+    ).order_by("-year", "name")
+    ungrouped_events = Event.objects.filter(series__isnull=True).order_by("start_date")
+    return render(request, "events/event_list.html", {
+        "series_list": series_list,
+        "ungrouped_events": ungrouped_events,
+    })
 
 def event_detail(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
@@ -94,11 +101,18 @@ def speaker_detail(request, speaker_id):
     })
 
 def landing_page(request):
-    # Fetch top 3 upcoming/featured events
-    featured_events = Event.objects.all().order_by("start_date")[:3]
+    current_series = EventSeries.objects.filter(is_current=True).prefetch_related(
+        Prefetch("events", queryset=Event.objects.order_by("start_date"))
+    ).first()
+    if current_series is not None:
+        featured_events = current_series.events.all()
+    else:
+        # No umbrella marked current yet — fall back to the old flat top-3 behaviour.
+        featured_events = Event.objects.all().order_by("start_date")[:3]
     # Fetch all scheduled conference sessions ordered by start time
     sessions = Session.objects.select_related("event").prefetch_related("speakers").order_by("start_time")
     return render(request, "events/landing_page.html", {
+        "current_series": current_series,
         "featured_events": featured_events,
         "sessions": sessions,
     })
@@ -229,8 +243,29 @@ def download_timetable_pdf(request):
     return response
 
 
+def series_list(request):
+    all_series = EventSeries.objects.prefetch_related(
+        Prefetch("events", queryset=Event.objects.order_by("start_date"))
+    ).order_by("-year", "name")
+    return render(request, "events/series_list.html", {"series_list": all_series})
+
+
+def series_detail(request, slug):
+    series = get_object_or_404(
+        EventSeries.objects.prefetch_related(
+            Prefetch("events", queryset=Event.objects.order_by("start_date"))
+        ),
+        slug=slug,
+    )
+    return render(request, "events/series_detail.html", {
+        "series": series,
+        "events": series.events.all(),
+    })
+
+
 @user_passes_test(check_admin, login_url='events:login')
 def admin_dashboard(request):
+    series = EventSeries.objects.all().order_by("-year", "name")
     events = Event.objects.all().order_by("start_date")
     speakers = Speaker.objects.all().order_by("name")
     sessions = Session.objects.all().order_by("start_time")
@@ -238,10 +273,11 @@ def admin_dashboard(request):
     questions = Question.objects.all().order_by("-created_at")
     tickets = Ticket.objects.all().order_by("name")
     attendees = Attendee.objects.select_related("ticket", "event").order_by("-registered_at")
-    
+
     active_tab = request.GET.get("tab", "events")
-    
+
     context = {
+        "series": series,
         "events": events,
         "speakers": speakers,
         "sessions": sessions,
@@ -249,6 +285,7 @@ def admin_dashboard(request):
         "questions": questions,
         "tickets": tickets,
         "attendees": attendees,
+        "total_series": series.count(),
         "total_events": events.count(),
         "total_speakers": speakers.count(),
         "total_sessions": sessions.count(),
@@ -270,6 +307,39 @@ def system_status(request):
         "debug_mode": django_settings.DEBUG,
     }
     return render(request, "events/system_status.html", context)
+
+# --- Event Series (umbrella) CRUD Views ---
+@user_passes_test(check_admin, login_url='events:login')
+def series_create(request):
+    if request.method == "POST":
+        form = EventSeriesForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('events:admin_dashboard')}?tab=series")
+    else:
+        form = EventSeriesForm()
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Create Event Series", "active_tab": "series"})
+
+@user_passes_test(check_admin, login_url='events:login')
+def series_edit(request, series_id):
+    series = get_object_or_404(EventSeries, pk=series_id)
+    if request.method == "POST":
+        form = EventSeriesForm(request.POST, request.FILES, instance=series)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('events:admin_dashboard')}?tab=series")
+    else:
+        form = EventSeriesForm(instance=series)
+    return render(request, "events/dashboard_form.html", {"form": form, "title": "Edit Event Series", "active_tab": "series"})
+
+@user_passes_test(check_admin, login_url='events:login')
+def series_delete(request, series_id):
+    series = get_object_or_404(EventSeries, pk=series_id)
+    if request.method == "POST":
+        series.delete()
+        return redirect(f"{reverse('events:admin_dashboard')}?tab=series")
+    return render(request, "events/dashboard_confirm_delete.html", {"object": series, "title": "Delete Event Series", "cancel_url": f"{reverse('events:admin_dashboard')}?tab=series"})
+
 
 # --- Events CRUD Views ---
 @user_passes_test(check_admin, login_url='events:login')

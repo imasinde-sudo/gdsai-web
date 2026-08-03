@@ -8,6 +8,8 @@ urlpatterns = [
     path("auth-diag/", views.auth_diagnostic, name="auth_diagnostic"),  # TEMPORARY
     path("", views.landing_page, name="landing_page"),
     path("schedule/pdf/", views.download_timetable_pdf, name="download_timetable_pdf"),
+    path("series/", views.series_list, name="series_list"),
+    path("series/<slug:slug>/", views.series_detail, name="series_detail"),
     path("events/", views.event_list, name="event_list"),
 
     path("events/<int:event_id>/", views.event_detail, name="event_detail"),
@@ -22,6 +24,11 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
     
+    # Event Series (umbrella) CRUD
+    path("dashboard/series/add/", views.series_create, name="series_create"),
+    path("dashboard/series/<int:series_id>/edit/", views.series_edit, name="series_edit"),
+    path("dashboard/series/<int:series_id>/delete/", views.series_delete, name="series_delete"),
+
     # Event CRUD
     path("dashboard/events/add/", views.event_create, name="event_create"),
     path("dashboard/events/<int:event_id>/edit/", views.event_edit, name="event_edit"),

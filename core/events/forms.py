@@ -1,20 +1,26 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Speaker, Event, Session, APIKey, Ticket, Attendee
+from .models import Speaker, Event, EventSeries, Session, APIKey, Ticket, Attendee
 
 
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ["title", "description", "start_date", "end_date", "location", "banner_image"]
+        fields = ["series", "title", "description", "start_date", "end_date", "location", "banner_image"]
         widgets = {
-            "title": forms.TextInput(attrs={"placeholder": "e.g. AI Innovation Summit 2026", "class": "form-input"}),
+            "series": forms.Select(attrs={"class": "form-select"}),
+            "title": forms.TextInput(attrs={"placeholder": "e.g. Conference", "class": "form-input"}),
             "description": forms.Textarea(attrs={"placeholder": "Provide a descriptive overview...", "class": "form-input", "rows": 4}),
             "start_date": forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={"type": "datetime-local", "step": "1", "class": "form-input"}),
             "end_date": forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={"type": "datetime-local", "step": "1", "class": "form-input"}),
             "location": forms.TextInput(attrs={"placeholder": "e.g. Hall C / Online", "class": "form-input"}),
             "banner_image": forms.ClearableFileInput(attrs={"class": "form-input-file"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["series"].queryset = EventSeries.objects.order_by("-year", "name")
+        self.fields["series"].required = False
 
     def clean(self):
         cleaned_data = super().clean()
@@ -23,6 +29,25 @@ class EventForm(forms.ModelForm):
         if start and end and end <= start:
             raise forms.ValidationError("End date must be after the start date.")
         return cleaned_data
+
+
+class EventSeriesForm(forms.ModelForm):
+    class Meta:
+        model = EventSeries
+        fields = ["name", "slug", "year", "tagline", "description", "banner_image", "is_current"]
+        widgets = {
+            "name": forms.TextInput(attrs={"placeholder": "e.g. GDSAI 2026", "class": "form-input"}),
+            "slug": forms.TextInput(attrs={"placeholder": "e.g. gdsai-2026 (auto-filled if left blank)", "class": "form-input"}),
+            "year": forms.NumberInput(attrs={"placeholder": "e.g. 2026", "class": "form-input"}),
+            "tagline": forms.TextInput(attrs={"placeholder": "e.g. Where research, innovation and enterprise meet.", "class": "form-input"}),
+            "description": forms.Textarea(attrs={"placeholder": "Provide an overview of this year's umbrella brand...", "class": "form-input", "rows": 4}),
+            "banner_image": forms.ClearableFileInput(attrs={"class": "form-input-file"}),
+            "is_current": forms.CheckboxInput(attrs={"class": "form-checkbox"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["slug"].required = False
 
 
 class SpeakerForm(forms.ModelForm):

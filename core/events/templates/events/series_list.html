@@ -1,0 +1,45 @@
+{% extends "events/base.html" %}
+
+{% block title %}Event Series - @iLabAfrica Centre{% endblock %}
+
+{% block content %}
+<header>
+  <span class="brand-rule"></span>
+  <h1 class="page-title">Event series</h1>
+  <p class="section-subtitle">Every year's GDSAI programme, nested under its own umbrella brand — browse by year to find the Conference, Masterclasses and Paper Presentation tracks.</p>
+</header>
+
+<section class="events-grid">
+  {% for series in series_list %}
+    <div class="event-card glass-panel">
+      {% if series.banner_image %}
+        <img class="event-card-banner" src="{{ series.banner_image.url }}" alt="{{ series.name }}">
+      {% else %}
+        <div class="event-card-banner"></div>
+      {% endif %}
+
+      <div class="event-card-content">
+        <h2 class="event-card-title">{{ series.name }}</h2>
+        {% if series.tagline %}
+          <p class="event-card-desc">{{ series.tagline }}</p>
+        {% endif %}
+
+        <div class="event-card-meta">
+          <div class="meta-item">
+            <span>{{ series.events.count }} sub-event{{ series.events.count|pluralize }}</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <a href="{% url 'events:series_detail' series.slug %}" class="btn btn--primary btn--block">Explore {{ series.name }}</a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="empty-state glass-panel" style="grid-column: 1 / -1;">
+      <h3 class="empty-state-title">No event series yet</h3>
+      <p class="empty-state-desc">Sign in to the dashboard to create the first umbrella brand (e.g. GDSAI 2026).</p>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

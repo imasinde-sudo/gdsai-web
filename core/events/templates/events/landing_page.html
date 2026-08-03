@@ -15,18 +15,32 @@ The reverse lockup is used because the banner runs on Strathmore Black.
     </div>
 
     <div class="hero-body">
-      <span class="hero-badge">Research &middot; Innovation &middot; Entrepreneurship</span>
+      <span class="hero-badge">
+        {% if current_series %}{{ current_series.name }}{% else %}Research &middot; Innovation &middot; Entrepreneurship{% endif %}
+      </span>
 
-      <h1 class="hero-title">Where research, innovation and enterprise meet.</h1>
+      <h1 class="hero-title">
+        {% if current_series and current_series.tagline %}{{ current_series.tagline }}{% else %}Where research, innovation and enterprise meet.{% endif %}
+      </h1>
 
       <p class="hero-description">
-        Conferences, workshops and expert panels hosted by the @iLabAfrica Centre at
-        Strathmore University. Browse full schedules, meet the speakers and plan your
-        day session by session.
+        {% if current_series %}
+          {{ current_series.name }} brings together the Conference, Masterclasses and Paper
+          Presentation tracks under one umbrella. Browse full schedules, meet the speakers
+          and plan your day session by session.
+        {% else %}
+          Conferences, workshops and expert panels hosted by the @iLabAfrica Centre at
+          Strathmore University. Browse full schedules, meet the speakers and plan your
+          day session by session.
+        {% endif %}
       </p>
 
       <div class="hero-actions">
-        <a href="{% url 'events:event_list' %}" class="btn btn--primary btn--lg">Explore events</a>
+        {% if current_series %}
+          <a href="{% url 'events:series_detail' current_series.slug %}" class="btn btn--primary btn--lg">Explore {{ current_series.name }}</a>
+        {% else %}
+          <a href="{% url 'events:event_list' %}" class="btn btn--primary btn--lg">Explore events</a>
+        {% endif %}
         <a href="https://ilabafrica.strathmore.edu" target="_blank" rel="noopener" class="btn btn--reverse btn--lg">About the Centre</a>
       </div>
     </div>
@@ -54,8 +68,12 @@ The reverse lockup is used because the banner runs on Strathmore Black.
   <div class="section-head">
     <div>
       <span class="brand-rule"></span>
-      <h2 class="section-title">Featured events</h2>
-      <p class="text-muted">Our most anticipated upcoming events at the Centre.</p>
+      <h2 class="section-title">
+        {% if current_series %}{{ current_series.name }} sub-events{% else %}Featured events{% endif %}
+      </h2>
+      <p class="text-muted">
+        {% if current_series %}Conference, Masterclasses and Paper Presentation — all under one roof.{% else %}Our most anticipated upcoming events at the Centre.{% endif %}
+      </p>
     </div>
     <a href="{% url 'events:event_list' %}" class="link-arrow">
       All events

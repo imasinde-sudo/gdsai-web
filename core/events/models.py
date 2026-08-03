@@ -1,6 +1,30 @@
 from django.db import models
+from django.utils.text import slugify
 import secrets
 import uuid
+
+
+class EventSeries(models.Model):
+    name = models.CharField(max_length=255, help_text="e.g. GDSAI 2026")
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    year = models.PositiveIntegerField(help_text="e.g. 2026")
+    tagline = models.CharField(max_length=255, blank=True)
+    description = models.TextField(blank=True)
+    banner_image = models.ImageField(upload_to="series/", blank=True, null=True)
+    is_current = models.BooleanField(default=False, help_text="Show as the featured umbrella on the landing page")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Event series"
+        ordering = ["-year"]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 
 class Speaker(models.Model):
@@ -19,6 +43,9 @@ class Speaker(models.Model):
 
 
 class Event(models.Model):
+    series = models.ForeignKey(
+        EventSeries, on_delete=models.SET_NULL, null=True, blank=True, related_name="events"
+    )
     title = models.CharField(max_length=255)
     description = models.TextField()
     start_date = models.DateTimeField()

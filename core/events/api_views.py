@@ -54,7 +54,7 @@ class APIKeyAuthentication(BaseAuthentication):
 # ---------------------------------------------------------------------------
 
 class EventListCreateAPIView(ListCreateAPIView):
-    queryset = Event.objects.all().order_by("start_date")
+    queryset = Event.objects.select_related("series").order_by("start_date")
     serializer_class = EventSerializer
     authentication_classes = [APIKeyAuthentication]
 
@@ -130,7 +130,7 @@ class MobileEventListView(ListAPIView):
     schema = MobileV1Schema()
 
     def get_queryset(self):
-        return Event.objects.annotate(
+        return Event.objects.select_related("series").annotate(
             sessions_count=Count("sessions")
         ).order_by("start_date")
 
@@ -140,7 +140,7 @@ class MobileEventDetailView(RetrieveAPIView):
     GET /api/v1/events/<id>/
     Full event details for the mobile event detail screen.
     """
-    queryset = Event.objects.all()
+    queryset = Event.objects.select_related("series").all()
     serializer_class = EventSerializer
     schema = MobileV1Schema()
 

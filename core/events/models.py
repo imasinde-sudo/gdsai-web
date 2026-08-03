@@ -146,3 +146,32 @@ class Question(models.Model):
 
     def __str__(self):
         return f"Q for {self.session.title}: {self.text[:30]}..."
+
+
+class Sponsor(models.Model):
+    TIER_PLATINUM = "PLATINUM"
+    TIER_GOLD = "GOLD"
+    TIER_PARTNER = "PARTNER"
+    TIER_CHOICES = [
+        (TIER_PLATINUM, "Platinum"),
+        (TIER_GOLD, "Gold"),
+        (TIER_PARTNER, "Partner"),
+    ]
+
+    name = models.CharField(max_length=255)
+    logo = models.ImageField(upload_to="sponsors/", blank=True, null=True)
+    website_url = models.URLField(help_text="Link-through to the sponsor's site")
+    tier = models.CharField(
+        max_length=10,
+        choices=TIER_CHOICES,
+        blank=True,
+        help_text="Optional — higher tiers get a larger logo placement on the home page",
+    )
+    is_active = models.BooleanField(default=True, help_text="Uncheck to hide from the home page without deleting")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return f"{self.name} ({self.get_tier_display()})" if self.tier else self.name

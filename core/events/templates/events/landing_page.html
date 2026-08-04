@@ -288,15 +288,19 @@ The reverse lockup is used because the banner runs on Strathmore Black.
   <div class="speaker-grid">
     {% for speaker in speakers %}
       <div class="glass-panel speaker-card">
-        {% if speaker.photo %}
-          <img src="{{ speaker.photo.url }}" alt="{{ speaker.name }}" class="speaker-avatar">
-        {% else %}
-          <div class="speaker-avatar speaker-avatar--placeholder">
-            <span>{{ speaker.name|slice:":1" }}</span>
-          </div>
-        {% endif %}
+        <a href="{% url 'events:speaker_detail' speaker.id %}" class="speaker-avatar-wrapper" style="text-decoration: none; color: inherit; display: inline-block;">
+          {% if speaker.photo %}
+            <img src="{{ speaker.photo.url }}" alt="{{ speaker.name }}" class="speaker-avatar">
+          {% else %}
+            <div class="speaker-avatar speaker-avatar--placeholder">
+              <span>{{ speaker.name|slice:":1" }}</span>
+            </div>
+          {% endif %}
+        </a>
 
-        <h3 class="speaker-name">{{ speaker.name }}</h3>
+        <h3 class="speaker-name">
+          <a href="{% url 'events:speaker_detail' speaker.id %}" style="text-decoration: none; color: inherit;">{{ speaker.name }}</a>
+        </h3>
         <p class="speaker-title">{{ speaker.title }}</p>
 
         {% if speaker.organization %}
@@ -307,16 +311,19 @@ The reverse lockup is used because the banner runs on Strathmore Black.
           <p class="speaker-bio">{{ speaker.bio|truncatewords:20 }}</p>
         {% endif %}
 
-        {% if speaker.linkedin_url %}
-          <div class="speaker-actions">
+        <div class="speaker-actions" style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; flex-wrap: wrap;">
+          <a href="{% url 'events:speaker_detail' speaker.id %}" class="btn btn--outline btn--sm" style="border-color: var(--brand-orange); color: var(--brand-orange);">
+            View Profile
+          </a>
+          {% if speaker.linkedin_url %}
             <a href="{{ speaker.linkedin_url }}" target="_blank" rel="noopener" class="btn btn--outline btn--sm speaker-linkedin-btn">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.74a1.45 1.45 0 1 0 0 2.9 1.45 1.45 0 0 0 0-2.9z"/>
               </svg>
-              LinkedIn Profile
+              LinkedIn
             </a>
-          </div>
-        {% endif %}
+          {% endif %}
+        </div>
       </div>
     {% empty %}
       <div class="empty-state glass-panel" style="grid-column: 1 / -1; padding: 2rem; text-align: center;">

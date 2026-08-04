@@ -255,16 +255,16 @@ The reverse lockup is used because the banner runs on Strathmore Black.
               <span><strong>Room/Location:</strong> {% if session.location %}{{ session.location }}{% else %}Main Auditorium{% endif %}</span>
             </div>
 
-            {% if session.speakers.all %}
-              <div class="session-speakers-list" style="display: flex; align-items: center; gap: 0.5rem;">
-                <span class="session-speakers-label" style="font-size: 0.85rem; color: var(--text-muted);">Speakers:</span>
-                {% for speaker in session.speakers.all %}
-                  <a href="{% url 'events:speaker_detail' speaker.id %}" class="speaker-avatar-link" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.2rem 0.6rem; font-size: 0.85rem; text-decoration: none; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff;">
-                    <span>{{ speaker.name }}</span>
-                  </a>
-                {% endfor %}
-              </div>
-            {% endif %}
+            <div class="session-speakers-list" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              <span class="session-speakers-label" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Speakers:</span>
+              {% for speaker in session.speakers.all %}
+                <a href="{% url 'events:speaker_detail' speaker.id %}" class="speaker-avatar-link" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; font-size: 0.85rem; text-decoration: none; border-radius: 20px; background: rgba(249, 101, 0, 0.1); color: #f96500; font-weight: 600; border: 1px solid rgba(249, 101, 0, 0.3);">
+                  <span>{{ speaker.name }}</span>
+                </a>
+              {% empty %}
+                <span style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">To be announced</span>
+              {% endfor %}
+            </div>
           </div>
         </div>
       </div>
@@ -276,6 +276,64 @@ The reverse lockup is used because the banner runs on Strathmore Black.
     {% endfor %}
   </div>
 </section>
+
+<!-- Keynote & Session Speakers Section -->
+<section class="stack-lg">
+  <div class="text-center" style="margin-bottom: 2.5rem;">
+    <span class="brand-rule brand-rule--center"></span>
+    <h2 class="section-title">Keynote & Session Speakers</h2>
+    <p class="text-muted">Meet the industry leaders, researchers, and experts speaking at our events.</p>
+  </div>
+
+  <div class="speaker-grid">
+    {% for speaker in speakers %}
+      <div class="glass-panel speaker-card">
+        <a href="{% url 'events:speaker_detail' speaker.id %}" class="speaker-avatar-wrapper" style="text-decoration: none; color: inherit; display: inline-block;">
+          {% if speaker.photo %}
+            <img src="{{ speaker.photo.url }}" alt="{{ speaker.name }}" class="speaker-avatar">
+          {% else %}
+            <div class="speaker-avatar speaker-avatar--placeholder">
+              <span>{{ speaker.name|slice:":1" }}</span>
+            </div>
+          {% endif %}
+        </a>
+
+        <h3 class="speaker-name">
+          <a href="{% url 'events:speaker_detail' speaker.id %}" style="text-decoration: none; color: inherit;">{{ speaker.name }}</a>
+        </h3>
+        <p class="speaker-title">{{ speaker.title }}</p>
+
+        {% if speaker.organization %}
+          <p class="speaker-org">{{ speaker.organization }}</p>
+        {% endif %}
+
+        {% if speaker.bio %}
+          <p class="speaker-bio">{{ speaker.bio|truncatewords:20 }}</p>
+        {% endif %}
+
+        <div class="speaker-actions" style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; flex-wrap: wrap;">
+          <a href="{% url 'events:speaker_detail' speaker.id %}" class="btn btn--outline btn--sm" style="border-color: var(--brand-orange); color: var(--brand-orange);">
+            View Profile
+          </a>
+          {% if speaker.linkedin_url %}
+            <a href="{{ speaker.linkedin_url }}" target="_blank" rel="noopener" class="btn btn--outline btn--sm speaker-linkedin-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.74a1.45 1.45 0 1 0 0 2.9 1.45 1.45 0 0 0 0-2.9z"/>
+              </svg>
+              LinkedIn
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state glass-panel" style="grid-column: 1 / -1; padding: 2rem; text-align: center;">
+        <h3 class="empty-state-title" style="font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem;">No Speakers Listed</h3>
+        <p class="empty-state-desc" style="color: var(--text-muted);">Keynote and session speakers will appear here once registered.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
 
 <section class="stack-md">
   <div class="text-center" style="margin-bottom: 3rem;">

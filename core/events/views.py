@@ -122,11 +122,13 @@ def landing_page(request):
             output_field=IntegerField(),
         )
     ).order_by("tier_rank", "name")
+    speakers = Speaker.objects.all().order_by("name")
     return render(request, "events/landing_page.html", {
         "current_series": current_series,
         "featured_events": featured_events,
         "sessions": sessions,
         "sponsors": sponsors,
+        "speakers": speakers,
     })
 
 

@@ -255,16 +255,16 @@ The reverse lockup is used because the banner runs on Strathmore Black.
               <span><strong>Room/Location:</strong> {% if session.location %}{{ session.location }}{% else %}Main Auditorium{% endif %}</span>
             </div>
 
-            {% if session.speakers.all %}
-              <div class="session-speakers-list" style="display: flex; align-items: center; gap: 0.5rem;">
-                <span class="session-speakers-label" style="font-size: 0.85rem; color: var(--text-muted);">Speakers:</span>
-                {% for speaker in session.speakers.all %}
-                  <a href="{% url 'events:speaker_detail' speaker.id %}" class="speaker-avatar-link" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.2rem 0.6rem; font-size: 0.85rem; text-decoration: none; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff;">
-                    <span>{{ speaker.name }}</span>
-                  </a>
-                {% endfor %}
-              </div>
-            {% endif %}
+            <div class="session-speakers-list" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              <span class="session-speakers-label" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Speakers:</span>
+              {% for speaker in session.speakers.all %}
+                <a href="{% url 'events:speaker_detail' speaker.id %}" class="speaker-avatar-link" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; font-size: 0.85rem; text-decoration: none; border-radius: 20px; background: rgba(249, 101, 0, 0.1); color: #f96500; font-weight: 600; border: 1px solid rgba(249, 101, 0, 0.3);">
+                  <span>{{ speaker.name }}</span>
+                </a>
+              {% empty %}
+                <span style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">To be announced</span>
+              {% endfor %}
+            </div>
           </div>
         </div>
       </div>

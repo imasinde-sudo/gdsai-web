@@ -277,3 +277,11 @@ class MobileAPIv1Tests(TestCase):
         self.assertTrue('filename="GDSAI_Conference_Schedule.pdf"' in response['Content-Disposition'])
         self.assertTrue(response.content.startswith(b'%PDF'))
 
+    def test_landing_page_renders_speaker_showcase_grid(self):
+        response = self.client.get(reverse('events:landing_page'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Keynote & Session Speakers')
+        self.assertContains(response, self.speaker.name)
+        self.assertContains(response, self.speaker.title)
+
+
